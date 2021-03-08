@@ -1,12 +1,16 @@
 global _start 
 
 %macro check_flush 0 
-
                 cmp rdi, buffer_end
-                jb %%skip_flush     ; if rdi >= buffer_end
-                call flushBuffer    ; then flush
+                jb %%skip_flush         ; if rdi >= buffer_end
+                call flushBuffer        ; then flush
 %%skip_flush:
+%endmacro
 
+%macro finish_case 0
+                add r10, 8              ; r10 = pos of the next argument
+                inc rsi                 ; rsi++ to skip current letter
+                jmp .loop_parse
 %endmacro
 
 section .text 
@@ -17,7 +21,7 @@ _start:
                 push 3802
                 push 3802
                 push 3802
-                push -1
+                push 0
                 push test_1st_str
                 push test_fstring
 
@@ -25,12 +29,11 @@ _start:
                 add rsp, 40
 
                 mov rax, EXIT_CMD 
-                xor rdi, rdi      ; return value
+                xor rdi, rdi            ; return value = 0
                 syscall
 
 ; FIXME: RDI RSI RDX RCX R8 R9
 ; FIXME: RCX R11
-; FIXME: intToString not printing if number = 0
 
 ;------------------------------------------------------------------------------
 ; Writes formatted output to stdout.
@@ -40,8 +43,9 @@ _start:
 ;          [RBP + 32] = arg2
 ;               ...
 ;
-; Returns: RAX = number of successfully written arguments
-; Changes: 
+; Returns: RAX = number of successfully written characters or -1 if an error 
+;                occurred.
+; Changes: RAX, RBX, RCX, RDX, RDI, RSI, R8, R9, R10, R12
 ; Details: You can use either of these argument specifications
 ; 
 ;            Symb  Bytes            Description 
@@ -67,13 +71,12 @@ writeFormatted:
                 push rbp
                 mov rbp, rsp
                 mov rsi, [rbp + 16]     ; formatted string
-
                 lea r10, [rbp + 24]     ; r10 = rbp + 24 = arg1      
- 
                 mov rdi, buffer         ; rdi = current char pos in output buffer   
 
-                xor r8, r8              ; r8 = 0 for later use of r8b
-
+                xor r8, r8              ; r8  = 0 for later use of r8b
+                xor r12, r12            ; r12 = 0 = number of characters 
+                                        ;           transmitted to stdout
 ; Loop that parses format string
 .loop_parse:
                 mov r8b, [rsi]          ; r8b = current symbol
@@ -88,19 +91,26 @@ writeFormatted:
                 inc rsi
                 mov r8b, [rsi]
 
+                cmp r8b, '%'
+                je .write_char
+
                 cmp r8b, 'b'
-                jb .write_char          ; invalid specification (or '%')
+                jb .invalid_spec        ; invalid specification
 
                 cmp r8b, 'x'
-                ja .write_char          ; invalid specification (or '%')
+                ja .invalid_spec        ; invalid specification
 
                 sub r8b, 'b'            ; r8b -= 'b'
                 jmp qword [writef_jmp_table + 8 * r8]
+
+.invalid_spec:
+                mov byte [conversion_error], 1
 
 .write_char:
                 mov byte [rdi], r8b   
                 inc rdi    
                 inc rsi
+                inc r12
 
                 check_flush
                 jmp .loop_parse
@@ -108,35 +118,37 @@ writeFormatted:
 .loop_parse_end:
 
                 cmp rdi, buffer
-                je .skip_flush   ; if there're symbols left in the buffer then
-                call flushBuffer ; flush them
+                je .skip_flush          ; if there're symbols left in the buffer then
+                call flushBuffer        ; flush them
 .skip_flush:
+
+                mov rax, r12            ; rax = number of characters transmitted to stdout
+                ; Checking whether there was an error
+                cmp byte [conversion_error], 0
+                je .no_error  
+                mov rax, -1             ; rax = error code
+.no_error:      
 
                 pop rbp
                 ret
 
-%macro finish_case 0
-                add r10, 8              ; r10 = pos of the next argument
-                inc rsi                 ; rsi++ to skip 'c'
-                jmp .loop_parse
-%endmacro
-
 ;------------------------------------------------------------------------------
 ; Writes a char to the buffer and flushes the buffer if needed.
 ;
-; Changes: 
+; Changes: RAX, RDX, RDI, RSI, R9, R12
 ;------------------------------------------------------------------------------
 .char_case:
                 mov r9, qword [r10]     ; r9 = current argument
                 mov byte [rdi], r9b       
                 inc rdi
+                inc r12
                 check_flush
                 finish_case
 
 ;------------------------------------------------------------------------------
 ; Writes null-terminated string to the buffer and flushes the buffer if needed.
 ;
-; Changes: 
+; Changes: RAX, RDX, RDI, RSI, R9, R12 
 ;------------------------------------------------------------------------------
 .str_case:
                 mov r9, qword [r10]     ; r9 = current argument
@@ -149,6 +161,7 @@ writeFormatted:
                 mov byte [rdi], al
                 inc r9 
                 inc rdi
+                inc r12
 
                 check_flush
                 jmp .loop_str
@@ -157,9 +170,25 @@ writeFormatted:
                 finish_case
 
 ;------------------------------------------------------------------------------
-; Writes decimal signed integer.
+; Writes an unsigned decimal integer.
 ;
-; Changes: 
+; Expects: RAX = number to be written
+; Changes: RAX, RBX, ECX, RDX, RDI, R9  
+;------------------------------------------------------------------------------
+.uint_write:
+                mov ecx, 10
+                mov rdi, itostr_tmp
+                call intToString
+                pop rdi
+
+                mov r9, itostr_tmp
+                call writeString
+                finish_case
+
+;------------------------------------------------------------------------------
+; Writes a signed decimal integer.
+;
+; Changes: RAX, RBX, RCX, RDX, RDI, R9  
 ;------------------------------------------------------------------------------
 .sint_case:
                 mov r9, qword [r10]     ; r9 = current argument
@@ -176,26 +205,30 @@ writeFormatted:
 .positive:
                 push rdi
                 mov rax, r9
-                mov ecx, 10
-                mov rdi, itostr_tmp
-                call intToString
-                pop rdi
-
-                mov r9, itostr_tmp
-                call writeString
-                finish_case
+                jmp .uint_write
 
 ;------------------------------------------------------------------------------
-; Writes decimal unsigned integer.
+; Writes an unsigned decimal integer.
 ;
-; Changes: 
+; Changes: RAX, RBX, RCX, RDX, RDI, R9  
 ;------------------------------------------------------------------------------
 .uint_case:
                 push rdi
-                mov eax, dword [r10]     ; eax = current argument
-                mov ecx, 10
+                mov eax, dword [r10]    ; eax = current argument
+                jmp .uint_write
+
+;------------------------------------------------------------------------------
+; Writes an unsigned integer in the base that is a power of two.
+;
+; Expects: CH = mask  (shift number of 1's, i.e. 2^shift - 1) 
+;          CL = shift (for bin - 1, oct - 3, hex - 4, etc.)
+; Changes: RAX, RBX, RDX, RDI, RSI, R9 
+;------------------------------------------------------------------------------
+.pow_two_int_case:
+                push rdi
+                mov eax, dword [r10]    ; eax = current argument
                 mov rdi, itostr_tmp
-                call intToString
+                call intToString2
                 pop rdi
 
                 mov r9, itostr_tmp
@@ -203,58 +236,34 @@ writeFormatted:
                 finish_case
 
 ;------------------------------------------------------------------------------
-; Writes hexadecimal unsigned integer.
+; Writes a hexadecimal unsigned integer.
 ;
-; Changes: 
+; Changes: RAX, RBX, CX, RDX, RDI, RSI, R9 
 ;------------------------------------------------------------------------------
 .xint_case:
-                push rdi
-                mov eax, dword [r10]     ; eax = current argument
                 mov ch, 16 - 1
                 mov cl, 4
-                mov rdi, itostr_tmp
-                call intToString2
-                pop rdi
-
-                mov r9, itostr_tmp
-                call writeString
-                finish_case
+                jmp .pow_two_int_case
 
 ;------------------------------------------------------------------------------
-; Writes octal unsigned integer.
+; Writes an octal unsigned integer.
 ;
-; Changes: 
+; Changes: RAX, RBX, CX, RDX, RDI, RSI, R9 
 ;------------------------------------------------------------------------------
 .oint_case:
-                push rdi
-                mov eax, dword [r10]     ; eax = current argument
                 mov ch, 8 - 1
                 mov cl, 3
-                mov rdi, itostr_tmp
-                call intToString2
-                pop rdi
-
-                mov r9, itostr_tmp
-                call writeString
-                finish_case
+                jmp .pow_two_int_case
 
 ;------------------------------------------------------------------------------
-; Writes binary unsigned integer.
+; Writes a binary unsigned integer.
 ;
-; Changes: 
+; Changes: RAX, RBX, CX, RDX, RDI, RSI, R9 
 ;------------------------------------------------------------------------------
 .bint_case:
-                push rdi
-                mov eax, dword [r10]     ; eax = current argument
                 mov ch, 2 - 1
                 mov cl, 1
-                mov rdi, itostr_tmp
-                call intToString2
-                pop rdi
-
-                mov r9, itostr_tmp
-                call writeString
-                finish_case
+                jmp .pow_two_int_case
 
 ;------------------------------------------------------------------------------
 ; Flushes the buffer up to RDI (the latter not including). After that sets RDI 
@@ -263,15 +272,15 @@ writeFormatted:
 ; Expects: RDI = the address up to which flush the buffer
 ;
 ; Returns: (none)
-; Changes: RAX, RDI=buffer, RSI, RDX
+; Changes: RAX, RDX, RDI = buffer, RSI
 ; Details: (none)
 ;------------------------------------------------------------------------------
 flushBuffer:
-                mov rax, WRITE_CMD ; write(rdi=fd, rsi=buf, rdx=cnt) 
+                mov rax, WRITE_CMD      ; write(rdi=fd, rsi=buf, rdx=cnt) 
                 mov rsi, buffer
 
                 mov rdx, rdi
-                sub rdx, buffer    ; rdx = rdi - buffer = cur buffer size
+                sub rdx, buffer         ; rdx = rdi - buffer = cur buffer size
 
                 mov rdi, STDOUT      
                 syscall
@@ -290,7 +299,7 @@ flushBuffer:
 ;
 ; Returns: RBX = length of the string
 ;
-; Changes: 
+; Changes: RAX, RBX, RDX, RDI, R9B 
 ;
 ; Details: The string is terminated with 0, and it isn't inluded in length in 
 ;          register RBX.
@@ -299,18 +308,15 @@ intToString:
                 
                 mov rbx, rdi
 .loop_convert:
-                xor rdx, rdx ; rdx = 0 for division to work 
-                test eax, eax
-                jz .loop_convert_end
-
+                xor rdx, rdx            ; rdx = 0 for division to work 
                 div ecx
 
                 mov r9b, [digits_letters + rdx]
                 mov byte [rbx], r9b
 
                 inc rbx
-
-                jmp .loop_convert
+                test eax, eax
+                jnz .loop_convert
 .loop_convert_end: 
 
                 mov byte [rbx], 0
@@ -333,9 +339,9 @@ intToString:
 
                 jmp .loop_str_inverse
 .loop_str_inverse_end:
-                
-                pop rbx                   ; restoring rbx
-                mov rdi, rax              ; restoring rdi
+                                        
+                pop rbx                 ; restoring rbx
+                mov rdi, rax            ; restoring rdi
                 sub rbx, rdi
 
                 ret 
@@ -351,13 +357,12 @@ intToString:
 ;
 ; Returns: RBX = length of the string
 ;
-; Changes: 
+; Changes: RAX, RBX, RDX, RDI, R9B 
 ;
 ; Details: The string is terminated with 0, and it isn't inluded in length in 
 ;          register RBX.
 ;------------------------------------------------------------------------------
 intToString2:
-                
                 mov rbx, rdi
 .loop_convert:
                 test eax, eax
@@ -396,8 +401,8 @@ intToString2:
                 jmp .loop_str_inverse
 .loop_str_inverse_end:
                 
-                pop rbx                   ; restoring rbx
-                mov rdi, rax              ; restoring rdi
+                pop rbx                 ; restoring rbx
+                mov rdi, rax            ; restoring rdi
                 sub rbx, rdi
 
                 ret 
@@ -410,58 +415,60 @@ intToString2:
 ;          RDI = address in the buffer where to write the char
 ;
 ; Returns: (none)
-; Changes: RAX, RDX, R9=position of the first 0, RDI=next position in buffer 
+; Changes: RAX
+;          RDX
+;          RDI = next position in buffer
+;          RSI
+;          R9  = position of the first 0
+;          R12 
 ; Details: (none)
 ;------------------------------------------------------------------------------
 writeString:
 .loop_write:
                 mov al, byte [r9]
                 test al, al    
-                jz .loop_end  ; if reached 0 exit the loop  
+                jz .loop_end            ; if reached 0 exit the loop  
 
                 mov byte [rdi], al
                 inc r9 
                 inc rdi
+                inc r12                 ; symbols transmitted to stdout ++
 
-                ; FIXME: flush macro
-                cmp rdi, buffer_end
-                jb  .skip_flush      ; if rdi >= buffer_end
-                                     ; then flush
-                call flushBuffer
-.skip_flush:
+                check_flush
 
                 jmp .loop_write
 .loop_end:
                 ret
 
-
-
 section .data 
 
-WRITE_CMD       equ 0x01
-STDOUT          equ 0x01
-EXIT_CMD        equ 0x3c
-ITOSTR_TMP_SIZE equ 33
-BUFFER_SIZE     equ 512
+WRITE_CMD        equ 0x01
+STDOUT           equ 0x01
+EXIT_CMD         equ 0x3c
+ITOSTR_TMP_SIZE  equ 32
+BUFFER_SIZE      equ 512
 
-digits_letters  db   "0123456789abcdef"
+conversion_error db 0 
+digits_letters   db   "0123456789ABCDEF"
+
+writef_jmp_table:
+                                    dq writeFormatted.bint_case    ; b
+                                    dq writeFormatted.char_case    ; c
+                                    dq writeFormatted.sint_case    ; d
+                times 'o' - 'd' - 1 dq writeFormatted.invalid_spec ; symbols after d and before o
+                                    dq writeFormatted.oint_case    ; o
+                times 's' - 'o' - 1 dq writeFormatted.invalid_spec ; symbols after o and before s
+                                    dq writeFormatted.str_case     ; s
+                times 'u' - 's' - 1 dq writeFormatted.invalid_spec ; symbols after s and before u
+                                    dq writeFormatted.uint_case    ; u
+                times 'x' - 'u' - 1 dq writeFormatted.invalid_spec ; symbols after u and before x
+                                    dq writeFormatted.xint_case    ; x
+                                    
+test_fstring:   db "Hello, %s, I'm %d glad %%xto see %x %o %b %s again %c", 10, 0
+test_1st_str:   db "Tralf", 0
+test_2nd_str:   db "not you", 0
+
+section .bss
 itostr_tmp      resb ITOSTR_TMP_SIZE
 buffer          resb BUFFER_SIZE
 buffer_end:
-
-writef_jmp_table:
-                                    dq writeFormatted.bint_case  ; b
-                                    dq writeFormatted.char_case  ; c
-                                    dq writeFormatted.sint_case  ; d
-                times 'o' - 'd' - 1 dq writeFormatted.write_char ; symbols after d and before o
-                                    dq writeFormatted.oint_case  ; o
-                times 's' - 'o' - 1 dq writeFormatted.write_char ; symbols after o and before s
-                                    dq writeFormatted.str_case   ; s
-                times 'u' - 's' - 1 dq writeFormatted.write_char ; symbols after s and before u
-                                    dq writeFormatted.uint_case  ; u
-                times 'x' - 'u' - 1 dq writeFormatted.write_char ; symbols after u and before x
-                                    dq writeFormatted.xint_case  ; x
-                                    
-test_fstring:   db "Hello, %s, I'm%! %d glad %%xto see %x %o %b %s again %c", 10, 0
-test_1st_str:   db "Tralf", 0
-test_2nd_str:   db "not you", 0
