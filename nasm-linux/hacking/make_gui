@@ -1,0 +1,44 @@
+AllWarnings    = -Wall -Wextra -pedantic
+SomeWarnings   = -Wall
+LittleWarnings = 
+NoWarnings     = -w
+
+Linker   = -lSDL2 -lSDL2_image -lSDL2_ttf -pthread
+Compiler = -std=c++2a -g $(NoWarnings)
+
+SrcDir = src
+GuiDir = gui
+BinDir = bin
+IntDir = $(BinDir)/intermediates
+LibDir = libs
+
+Libs = $(wildcard $(LibDir)/*.a)
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(SrcDir)/$(GuiDir)/*.h) $(wildcard $(LibDir)/*.h)
+Objs = $(IntDir)/$(GuiDir)/main.o $(IntDir)/$(GuiDir)/gui_handler.o $(IntDir)/$(GuiDir)/texture.o $(IntDir)/$(GuiDir)/progress_bar.o $(IntDir)/$(GuiDir)/button.o $(IntDir)/patcher.o $(IntDir)/hash.o $(IntDir)/file_loader.o
+
+$(BinDir)/$(GuiDir)/patcher.out: $(Objs) $(Libs) $(Deps)
+	g++ -o $(BinDir)/$(GuiDir)/patcher.out $(Linker) $(Objs) $(Libs) 
+
+$(IntDir)/$(GuiDir)/main.o: $(SrcDir)/$(GuiDir)/main.cpp $(Deps)
+	g++ -o $(IntDir)/$(GuiDir)/main.o -c $(SrcDir)/$(GuiDir)/main.cpp $(Compiler)
+
+$(IntDir)/$(GuiDir)/gui_handler.o: $(SrcDir)/$(GuiDir)/gui_handler.cpp $(Deps)
+	g++ -o $(IntDir)/$(GuiDir)/gui_handler.o -c $(SrcDir)/$(GuiDir)/gui_handler.cpp $(Compiler)
+
+$(IntDir)/$(GuiDir)/texture.o: $(SrcDir)/$(GuiDir)/texture.cpp $(Deps)
+	g++ -o $(IntDir)/$(GuiDir)/texture.o -c $(SrcDir)/$(GuiDir)/texture.cpp $(Compiler)
+
+$(IntDir)/$(GuiDir)/progress_bar.o: $(SrcDir)/$(GuiDir)/progress_bar.cpp $(Deps)
+	g++ -o $(IntDir)/$(GuiDir)/progress_bar.o -c $(SrcDir)/$(GuiDir)/progress_bar.cpp $(Compiler)
+
+$(IntDir)/$(GuiDir)/button.o: $(SrcDir)/$(GuiDir)/button.cpp $(Deps)
+	g++ -o $(IntDir)/$(GuiDir)/button.o -c $(SrcDir)/$(GuiDir)/button.cpp $(Compiler)
+
+$(IntDir)/patcher.o: $(SrcDir)/patcher.cpp $(Deps)
+	g++ -o $(IntDir)/patcher.o -c $(SrcDir)/patcher.cpp $(Compiler)
+
+$(IntDir)/hash.o: $(SrcDir)/hash.cpp $(Deps)
+	g++ -o $(IntDir)/hash.o -c $(SrcDir)/hash.cpp $(Compiler)
+
+$(IntDir)/file_loader.o: $(SrcDir)/file_loader.cpp $(Deps)
+	g++ -o $(IntDir)/file_loader.o -c $(SrcDir)/file_loader.cpp $(Compiler)

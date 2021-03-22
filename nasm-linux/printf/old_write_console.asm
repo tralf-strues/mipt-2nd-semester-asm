@@ -16,12 +16,11 @@ global _start
 section .text 
 
 _start: 
-                push '!'
-                push test_2nd_str
+                "I %s %x %d%%%c%b", 0
+                push 255
+                push 33
+                push 100
                 push 3802
-                push 3802
-                push 3802
-                push 0
                 push test_1st_str
                 push test_fstring
 
@@ -464,7 +463,7 @@ writef_jmp_table:
                 times 'x' - 'u' - 1 dq writeFormatted.invalid_spec ; symbols after u and before x
                                     dq writeFormatted.xint_case    ; x
                                     
-test_fstring:   db "Hello, %s, I'm %d glad %%xto see %x %o %b %s again %c", 10, 0
+test_fstring:   db "I %s %x %d%%%c%b", 0
 test_1st_str:   db "Tralf", 0
 test_2nd_str:   db "not you", 0
 

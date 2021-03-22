@@ -1,0 +1,22 @@
+Options = -std=c++2a -g -pedantic -Wall -Wextra
+
+SrcDir = src
+BinDir = bin
+IntDir = $(BinDir)/intermediates
+LibDir = libs
+
+Libs = $(wildcard $(LibDir)/*.a)
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h)
+Objs = $(IntDir)/write_hash.o $(IntDir)/file_loader.o $(IntDir)/hash.o
+
+$(BinDir)/write_hash.out: $(Objs) $(Libs) $(Deps)
+	g++ -o $(BinDir)/write_hash.out $(Objs) $(Libs)
+
+$(IntDir)/write_hash.o: $(SrcDir)/write_hash.cpp $(Deps)
+	g++ -o $(IntDir)/write_hash.o -c $(SrcDir)/write_hash.cpp $(Options)
+
+$(IntDir)/file_loader.o: $(SrcDir)/file_loader.cpp $(Deps)
+	g++ -o $(IntDir)/file_loader.o -c $(SrcDir)/file_loader.cpp $(Options)
+
+$(IntDir)/hash.o: $(SrcDir)/hash.cpp $(Deps)
+	g++ -o $(IntDir)/hash.o -c $(SrcDir)/hash.cpp $(Options)

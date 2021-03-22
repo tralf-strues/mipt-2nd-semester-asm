@@ -1,0 +1,29 @@
+Options = -g -Wextra -Wall -pedantic 
+
+SrcDir = src
+GuiDir = console
+BinDir = bin
+IntDir = $(BinDir)/intermediates
+LibDir = libs
+
+Libs = $(wildcard $(LibDir)/*.a)
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h)
+Objs = $(IntDir)/$(GuiDir)/main.o $(IntDir)/patcher.o $(IntDir)/$(GuiDir)/colored_output.o $(IntDir)/hash.o $(IntDir)/file_loader.o
+
+$(BinDir)/$(GuiDir)/patcher.out: $(Objs) $(Libs) $(Deps)
+	g++ -o $(BinDir)/$(GuiDir)/patcher.out $(Objs) $(Libs)
+
+$(IntDir)/$(GuiDir)/main.o: $(SrcDir)/$(GuiDir)/main.cpp $(Deps)
+	g++ -o $(IntDir)/$(GuiDir)/main.o -c $(SrcDir)/$(GuiDir)/main.cpp $(Options)
+
+$(IntDir)/patcher.o: $(SrcDir)/patcher.cpp $(Deps)
+	g++ -o $(IntDir)/patcher.o -c $(SrcDir)/patcher.cpp $(Options)
+
+$(IntDir)/$(GuiDir)/colored_output.o: $(SrcDir)/$(GuiDir)/colored_output.cpp $(Deps)
+	g++ -o $(IntDir)/$(GuiDir)/colored_output.o -c $(SrcDir)/$(GuiDir)/colored_output.cpp $(Options)
+
+$(IntDir)/hash.o: $(SrcDir)/hash.cpp $(Deps)
+	g++ -o $(IntDir)/hash.o -c $(SrcDir)/hash.cpp $(Options)
+
+$(IntDir)/file_loader.o: $(SrcDir)/file_loader.cpp $(Deps)
+	g++ -o $(IntDir)/file_loader.o -c $(SrcDir)/file_loader.cpp $(Options)

@@ -1,0 +1,10 @@
+run: cfromasm.out 
+	./cfromasm.out
+
+cfromasm.out: cfromasm.asm
+	
+cfromasm.o: cfromasm.asm
+	nasm -f elf64 cfromasm.asm -o cfromasm.o
+	
+cfromasm.out: cfromasm.o
+	gcc -no-pie cfromasm.o -o cfromasm.out
