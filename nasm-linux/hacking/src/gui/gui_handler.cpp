@@ -29,7 +29,7 @@ bool init(GuiHandler* handler,
         return false;
     }
 
-    if(TTF_Init() == -1)
+    if (TTF_Init() == -1)
     {
         printf("[ERROR] SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
         return false;

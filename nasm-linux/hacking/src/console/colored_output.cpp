@@ -22,5 +22,5 @@ void setBgrColor(size_t background)
 
 void resetColor()
 {
-    printf("\e[0m\e[0m\e[0m");
+    printf("\e[0m");
 }
