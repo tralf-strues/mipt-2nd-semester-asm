@@ -4,7 +4,7 @@ LittleWarnings =
 NoWarnings     = -w
 
 Linker   = -lSDL2 -pthread
-Compiler = -O3 $(NoWarnings)
+Compiler = -mavx2 -mavx -msse4 -O3 $(NoWarnings)
 
 SrcDir = src
 BinDir = bin
