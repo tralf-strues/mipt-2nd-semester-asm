@@ -5,6 +5,25 @@
     "version": "0.2.0",
     "configurations": [
     {
+        "name": "Launch dictionary",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/nasm-linux/hash-table/bin/define.out",
+        "args": [],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}/nasm-linux/hash-table/bin/",
+        "environment": [],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "setupCommands": [
+            {
+                "description": "Enable pretty-printing for gdb",
+                "text": "-enable-pretty-printing",
+                "ignoreFailures": true
+            }
+        ]
+    },
+    {
         "name": "Launch with debug from bin",
         "type": "cppdbg",
         "request": "launch",
