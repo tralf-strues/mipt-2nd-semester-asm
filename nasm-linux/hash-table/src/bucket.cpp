@@ -5,7 +5,7 @@ Bucket* construct(Bucket* bucket, size_t capacity)
     assert(bucket);
     assert(capacity > 0);
 
-    bucket->data = (value_t*) calloc(capacity, sizeof(value_t));
+    bucket->data = (Pair*) calloc(capacity, sizeof(Pair));
     if (bucket->data == nullptr) { return nullptr; }
 
     bucket->size     = 0;
@@ -59,59 +59,71 @@ void resize(Bucket* bucket, size_t newCapacity)
 {
     assert(bucket);
     assert(bucket->data);
+    assert(bucket->size <= bucket->capacity);
 
-    value_t* newData = (value_t*) realloc(bucket->data, newCapacity * sizeof(value_t));
+    Pair* newData = (Pair*) realloc(bucket->data, newCapacity * sizeof(Pair));
     assert(newData);
 
-    bucket->data = newData;
-    bucket->size = newCapacity;
+    bucket->data     = newData;
+    bucket->capacity = newCapacity;
 }
 
 void shrinkToFit(Bucket* bucket)
 {
     assert(bucket);
+    assert(bucket->data);
+    assert(bucket->size <= bucket->capacity);
 
     resize(bucket, bucket->size);
 }
 
-value_t* get(Bucket* bucket, size_t i)
+const Pair* get(Bucket* bucket, size_t i)
 {
     assert(bucket);
+    assert(bucket->data);
+    assert(bucket->size <= bucket->capacity);
     assert(i < bucket->capacity);
 
     return &bucket->data[i];
 }
 
-void set(Bucket* bucket, size_t i, value_t value)
+void set(Bucket* bucket, size_t i, Pair pair)
 {
     assert(bucket);
+    assert(bucket->data);
+    assert(bucket->size <= bucket->capacity);
     assert(i < bucket->capacity);
 
-    bucket->data[i] = value;
+    bucket->data[i] = pair;
 }
 
 size_t spaceLeft(Bucket* bucket)
 {
     assert(bucket);
+    assert(bucket->data);
+    assert(bucket->size <= bucket->capacity);
 
     return bucket->capacity - bucket->size;
 }
 
-void pushBack(Bucket* bucket, value_t value)
+void pushBack(Bucket* bucket, Pair pair)
 {
     assert(bucket);
+    assert(bucket->data);
+    assert(bucket->size <= bucket->capacity);
 
     if (bucket->size + 1 > bucket->capacity)
     {
         resize(bucket, bucket->capacity * BUCKET_EXPAND_MULTIPLIER);
     }
 
-    set(bucket, bucket->size++, value);
+    set(bucket, bucket->size++, pair);
 }
 
-value_t* popBack(Bucket* bucket)
+const Pair* popBack(Bucket* bucket)
 {
     assert(bucket);
+    // TODO: asserts
 
     return get(bucket, bucket->size--);
 }

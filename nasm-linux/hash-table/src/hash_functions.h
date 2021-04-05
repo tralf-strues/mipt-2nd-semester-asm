@@ -19,4 +19,4 @@ uint32_t getFirstCharHash      (const char* string);
 uint32_t getSumCharsHash       (const char* string);
 uint32_t getXorRightRotateHash (const char* string);
 uint32_t getXorLeftRotateHash  (const char* string);
-// uint64_t getConstantHash       (const char* string); // TODO:
+uint32_t getMurmur3Hash        (const char* string);

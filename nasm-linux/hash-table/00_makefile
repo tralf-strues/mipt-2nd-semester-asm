@@ -1,0 +1,39 @@
+AllWarnings    = -Wall -Wextra -pedantic
+SomeWarnings   = -Wall
+LittleWarnings = 
+NoWarnings     = -w
+
+Linker   = 
+Compiler = -g -DDEBUG $(AllWarnings)
+
+SrcDir = src
+BinDir = bin
+IntDir = $(BinDir)/intermediates
+LibDir = libs
+VerDir = 00_compare_hashes
+
+Libs = $(wildcard $(LibDir)/*.a)
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h)
+Objs = $(IntDir)/$(VerDir)/main.o $(IntDir)/file_loader.o $(IntDir)/dictionary.o $(IntDir)/hash_table.o $(IntDir)/bucket.o $(IntDir)/hash_functions.o
+Exec = 00_compare_hashes.out
+
+$(BinDir)/$(Exec): $(Objs) $(Libs) $(Deps)
+	g++ -o $(BinDir)/$(Exec) $(Linker) $(Objs) $(Libs) 
+
+$(IntDir)/$(VerDir)/main.o: $(SrcDir)/$(VerDir)/main.cpp $(Deps)
+	g++ -o $(IntDir)/$(VerDir)/main.o -c $(SrcDir)/$(VerDir)/main.cpp $(Compiler)
+
+$(IntDir)/file_loader.o: $(SrcDir)/file_loader.cpp $(Deps)
+	g++ -o $(IntDir)/file_loader.o -c $(SrcDir)/file_loader.cpp $(Compiler)
+
+$(IntDir)/dictionary.o: $(SrcDir)/dictionary.cpp $(Deps)
+	g++ -o $(IntDir)/dictionary.o -c $(SrcDir)/dictionary.cpp $(Compiler)
+
+$(IntDir)/hash_table.o: $(SrcDir)/hash_table.cpp $(Deps)
+	g++ -o $(IntDir)/hash_table.o -c $(SrcDir)/hash_table.cpp $(Compiler)
+
+$(IntDir)/bucket.o: $(SrcDir)/bucket.cpp $(Deps)
+	g++ -o $(IntDir)/bucket.o -c $(SrcDir)/bucket.cpp $(Compiler)
+
+$(IntDir)/hash_functions.o: $(SrcDir)/hash_functions.cpp $(Deps)
+	g++ -o $(IntDir)/hash_functions.o -c $(SrcDir)/hash_functions.cpp $(Compiler)

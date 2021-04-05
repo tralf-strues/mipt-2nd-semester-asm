@@ -13,20 +13,6 @@
 
 #include <stdio.h>
 
-const char* POS_SPECIFIERS[PARTS_OF_SPEECH_TOTAL - 1] = { 
-            "a.",    /* adjective          */
-            "adv.",  /* adverb             */
-            "pl.",   /* noun plural        */
-            "n.",    /* noun               */
-            "p. p."  /* past participle    */
-            "imp."   /* past simple        */
-            "p. pr." /* present participle */
-            "prep.", /* preposition        */
-            "pron.", /* pronoun            */
-            "v. t."  /* verb transitive    */ 
-            "v. i."  /* verb intransitive  */ 
-        };  
-
 enum PartOfSpeech
 {
     UNSPECIFIED,
@@ -45,6 +31,35 @@ enum PartOfSpeech
 
     PARTS_OF_SPEECH_TOTAL
 };
+
+static const char* POS_SPECIFIERS[PARTS_OF_SPEECH_TOTAL - 1] = { 
+            "a.",     /* adjective          */
+            "adv.",   /* adverb             */
+            "pl.",    /* noun plural        */
+            "n.",     /* noun               */
+            "p. p.",  /* past participle    */
+            "imp.",   /* past simple        */
+            "p. pr.", /* present participle */
+            "prep.",  /* preposition        */
+            "pron.",  /* pronoun            */
+            "v. t.",  /* verb transitive    */ 
+            "v. i."   /* verb intransitive  */ 
+        };  
+
+static const char* POS_STRINGS[PARTS_OF_SPEECH_TOTAL] = {
+            "unspecified",
+            "adj",
+            "adv",
+            "n.pl.",
+            "n",
+            "past participle",
+            "past simple",
+            "present participle",
+            "prep",
+            "pron",
+            "v.t.",
+            "v.i."
+        };
 
 struct Definition
 {
