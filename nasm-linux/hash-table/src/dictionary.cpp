@@ -35,7 +35,7 @@ void initDictionary(Dictionary* dictionary, size_t hashTableSize,
     assert(hashTableSize > 0);
     assert(getHash);
     
-    construct(&dictionary->hashTable, hashTableSize, strcasecmp, getHash); 
+    construct(&dictionary->hashTable, hashTableSize, strcmp, getHash); // FIXME: strcasecmp
     
     dictionary->wordsCount       = 0;
     dictionary->definitionsCount = 0;

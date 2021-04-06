@@ -1,0 +1,36 @@
+AllWarnings    = -Wall -Wextra -pedantic
+SomeWarnings   = -Wall
+LittleWarnings = 
+NoWarnings     = 
+
+Linker   = 
+Compiler = -g -O1 $(NoWarnings)
+
+SrcDir = src
+BinDir = bin
+IntDir = $(BinDir)/intermediates
+LibDir = libs
+VerDir = 02_optimize/hash_table_only
+
+Libs = $(wildcard $(LibDir)/*.a)
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h)
+Objs = $(IntDir)/$(VerDir)/main_only_hash_table.o $(IntDir)/file_loader.o $(IntDir)/hash_table.o $(IntDir)/bucket.o $(IntDir)/hash_functions.o
+Exec = 02_hash_table_only.out
+
+$(BinDir)/$(Exec): $(Objs) $(Libs) $(Deps)
+	g++ -o $(BinDir)/$(Exec) $(Linker) $(Objs) $(Libs) 
+
+$(IntDir)/$(VerDir)/main_only_hash_table.o: $(SrcDir)/$(VerDir)/main_only_hash_table.cpp $(Deps)
+	g++ -o $(IntDir)/$(VerDir)/main_only_hash_table.o -c $(SrcDir)/$(VerDir)/main_only_hash_table.cpp $(Compiler)
+
+$(IntDir)/file_loader.o: $(SrcDir)/file_loader.cpp $(Deps)
+	g++ -o $(IntDir)/file_loader.o -c $(SrcDir)/file_loader.cpp $(Compiler)
+
+$(IntDir)/hash_table.o: $(SrcDir)/hash_table.cpp $(Deps)
+	g++ -o $(IntDir)/hash_table.o -c $(SrcDir)/hash_table.cpp $(Compiler)
+
+$(IntDir)/bucket.o: $(SrcDir)/bucket.cpp $(Deps)
+	g++ -o $(IntDir)/bucket.o -c $(SrcDir)/bucket.cpp $(Compiler)
+
+$(IntDir)/hash_functions.o: $(SrcDir)/hash_functions.cpp $(Deps)
+	g++ -o $(IntDir)/hash_functions.o -c $(SrcDir)/hash_functions.cpp $(Compiler)

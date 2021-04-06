@@ -187,11 +187,63 @@ Definitions for 'surprise'
 ```
 
 ### Creating an html page from a txt document 
-The idea is you can hover over words and see their definitions. For example if we feed the first chapter (taken from [here](https://genius.com/J-r-r-tolkien-the-hobbit-chap-1-an-unexpected-party-annotated)) of J.R.R. Tolkien's [Hobbit](https://en.wikipedia.org/wiki/The_Hobbit), then the result will be something like this (note that there might be visual differences in different web browsers):
+The idea is you can hover over words and see their definitions. For example if we consider the first chapter (taken from [here](https://genius.com/J-r-r-tolkien-the-hobbit-chap-1-an-unexpected-party-annotated)) of J.R.R. Tolkien's [Hobbit](https://en.wikipedia.org/wiki/The_Hobbit), then the result will be something like this (note that there might be visual differences in different web browsers):
 ```
 $ ./define.out --doc hobbit_chapter1.txt -o hobbit_chapter1.html
 ```
-![](images/hobbit_screenshot.png)
+![zoom=](images/hobbit_screenshot.png)
+
 The word hovered on is 'door'.
 
 # Optimization
+TODO:
+## Choosing testing strategy
+### Failed attempt #1
+Let's first try to analyze performance of the program on a txt file containing books "Harry Potter and the Chamber of Secrets", "Harry Potter and the Goblet of Fire", "Harry Potter and the Half-blood Prince", "Harry Potter and the Deathly Hallows" (30,684 lines and 2,646,069 characters total).
+
+Test time in average is TODO:
+```
+Time: 2843.53 ms
+Time: 2699.05 ms
+Time: 2608.24 ms
+```
+
+Let's look at the profiler
+
+![](bin/res/../../images/callgrind_failed1.png)
+
+It's clear that the majority of CPU time is taken by io functions, which makes the test not objective. 
+
+### Failed attempt #2
+Here I have removed writing to output file.
+
+Test time in average is TODO:
+``` 
+Time: 2843.53 ms
+Time: 2699.05 ms
+Time: 2608.24 ms
+```
+
+Let's look at the profiler
+
+![](bin/res/../../images/callgrind_failed2.png)
+
+Still there functions at the top which aren't related to the Hash Table.
+
+### Final testing program
+In order to minimize the time required by loading and parsing input file, I have found a [file](https://github.com/dwyl/english-words) containing just 466,472 words (with no definition whatsoever). 
+
+Test time in average is TODO:
+``` 
+Time: 2843.53 ms
+Time: 2699.05 ms
+Time: 2608.24 ms
+```
+
+Let's look at the profiler
+
+![](bin/res/../../images/callgrind_hash_table_only.png)
+
+This is much better! Now we can start optimizing the Hash Table.
+
+## Hash function optimization

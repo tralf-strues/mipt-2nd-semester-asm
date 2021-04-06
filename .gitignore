@@ -4,3 +4,7 @@
 *.zip
 *.json
 .vscode
+
+# Temporary
+*.html
+*.txt
