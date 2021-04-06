@@ -247,3 +247,105 @@ Let's look at the profiler
 This is much better! Now we can start optimizing the Hash Table.
 
 ## Hash function optimization
+Clearly the hash function takes most of the time, so it's worth the effort (probably) to rewrite it in assembly.
+
+GCC 
+```
+g++ -S -O1 -masm=intel hash_functions.cpp -o hash_functions.asm
+```
+produces the following code for `getMurmur3()`:
+
+```asm
+_Z14getMurmur3HashPKc:
+.LFB34:
+	.cfi_startproc
+	push	rbx
+	.cfi_def_cfa_offset 16
+	.cfi_offset 3, -16
+	test	rdi, rdi
+	je	.L50
+	mov	rbx, rdi
+	call	strlen@PLT
+	mov	rdi, rax
+	mov	r8, rax
+	shr	r8, 2
+	cmp	rax, 3
+	jbe	.L46
+	mov	ecx, 0
+	mov	esi, 220202
+	mov	edx, 0
+.L42:
+	imul	eax, DWORD PTR [rbx+rdx*4], -862048943
+	rol	eax, 15
+	imul	eax, eax, 461845907
+	xor	eax, esi
+	rol	eax, 13
+	lea	esi, -430675100[rax+rax*4]
+	add	ecx, 1
+	mov	edx, ecx
+	cmp	rdx, r8
+	jb	.L42
+.L41:
+	mov	rax, rdi
+	and	rax, -4
+	add	rbx, rax
+	mov	rax, rdi
+	and	eax, 3
+	cmp	rax, 2
+	je	.L43
+	cmp	rax, 3
+	je	.L44
+	mov	edx, 0
+	cmp	rax, 1
+	je	.L51
+.L45:
+	imul	edx, edx, -862048943
+	rol	edx, 15
+	mov	eax, esi
+	xor	eax, edi
+	imul	esi, edx, 461845907
+	xor	eax, esi
+	mov	esi, eax
+	shr	esi, 16
+	xor	eax, esi
+	imul	esi, eax, -2048144789
+	mov	eax, esi
+	shr	eax, 13
+	xor	eax, esi
+	imul	eax, eax, -1028477387
+	mov	edx, eax
+	shr	edx, 16
+	xor	eax, edx
+	pop	rbx
+	.cfi_remember_state
+	.cfi_def_cfa_offset 8
+	ret
+.L50:
+	.cfi_restore_state
+	lea	rcx, .LC8[rip]
+	mov	edx, 87
+	lea	rsi, .LC1[rip]
+	lea	rdi, .LC2[rip]
+	call	__assert_fail@PLT
+.L46:
+	mov	esi, 220202
+	jmp	.L41
+.L51:
+	movzx	edx, BYTE PTR [rbx]
+	jmp	.L45
+.L43:
+	movzx	edx, BYTE PTR 1[rbx]
+	sal	edx, 8
+	jmp	.L45
+.L44:
+	movzx	edx, BYTE PTR 2[rbx]
+	sal	edx, 16
+	jmp	.L45
+	.cfi_endproc
+.LFE34:
+	.size	_Z14getMurmur3HashPKc, .-_Z14getMurmur3HashPKc
+	.ident	"GCC: (GNU) 10.2.0"
+	.section	.note.GNU-stack,"",@progbits
+
+```
+
