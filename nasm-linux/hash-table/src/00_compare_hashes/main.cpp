@@ -5,10 +5,10 @@
 #include "../hash_functions.h"
 
 const size_t HASH_TABLE_SIZES_COUNT = 5;
-const size_t SAMPLES_COUNT          = 7;
+const size_t SAMPLES_COUNT          = 8;
 const double MAX_BAR_HEIGHT_MULT    = 1.5;
 const size_t BARS_COUNT             = 256;
-const size_t MAX_FILENAME_LENGTH    = 256;
+const size_t MAX_FILENAME_LENGTH    = 256; 
 
 size_t HASH_TABLE_SIZES[HASH_TABLE_SIZES_COUNT] = {
             521,
@@ -25,7 +25,8 @@ uint32_t (*const HASH_FUNCTIONS[SAMPLES_COUNT]) (const char* string) = {
             getSumCharsHash,
             getXorRightRotateHash,
             getXorLeftRotateHash,
-            getMurmur3Hash
+            getMurmur3Hash,
+            getCrc32Hash
         };
 
 const char* SAMPLES_NAMES[SAMPLES_COUNT] = {
@@ -35,7 +36,8 @@ const char* SAMPLES_NAMES[SAMPLES_COUNT] = {
             "Characters sum hash function",
             "Xor and right rotate hash function",
             "Xor and left rotate hash function",
-            "Murmur3 hash function"
+            "Murmur3 hash function",
+            "CRC32 hash function"
         };
 
 struct TestSample

@@ -52,3 +52,9 @@ set output "res/00_compare_hashes/size_1031/gnuplot_test_output7.svg"
 set title "Murmur3 hash function"
 plot "res/00_compare_hashes/size_1031/plot_data.dat" using 1:2 index 6 with boxes ls 1
 
+set term svg dynamic size 5000 2000 background rgb "white"
+set key title "Standard deviation = 2.29612" font ",40" offset 0, -3
+set output "res/00_compare_hashes/size_1031/gnuplot_test_output8.svg"
+set title "CRC32 hash function"
+plot "res/00_compare_hashes/size_1031/plot_data.dat" using 1:2 index 7 with boxes ls 1
+

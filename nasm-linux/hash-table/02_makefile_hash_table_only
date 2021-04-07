@@ -4,7 +4,7 @@ LittleWarnings =
 NoWarnings     = 
 
 Linker   = 
-Compiler = -g -O1 $(NoWarnings)
+Compiler = -mavx -march=native -g -O3 -DNDEBUG $(NoWarnings)
 
 SrcDir = src
 BinDir = bin
@@ -13,12 +13,12 @@ LibDir = libs
 VerDir = 02_optimize/hash_table_only
 
 Libs = $(wildcard $(LibDir)/*.a)
-Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h) $(SrcDir)/02_optimize/murmur3_optimized.s
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h) .FORCE
 Objs = $(IntDir)/$(VerDir)/main_only_hash_table.o $(IntDir)/file_loader.o $(IntDir)/hash_table.o $(IntDir)/bucket.o $(IntDir)/hash_functions.o
 Exec = 02_hash_table_only.out
 
 $(BinDir)/$(Exec): $(Objs) $(Libs) $(Deps)
-	g++ -o $(BinDir)/$(Exec) $(Linker) -no-pie $(SrcDir)/02_optimize/murmur3_optimized.s $(Objs) $(Libs) 
+	g++ -o $(BinDir)/$(Exec) $(Linker) $(Objs) $(Libs) 
 
 $(IntDir)/$(VerDir)/main_only_hash_table.o: $(SrcDir)/$(VerDir)/main_only_hash_table.cpp $(Deps)
 	g++ -o $(IntDir)/$(VerDir)/main_only_hash_table.o -c $(SrcDir)/$(VerDir)/main_only_hash_table.cpp $(Compiler)
@@ -35,5 +35,4 @@ $(IntDir)/bucket.o: $(SrcDir)/bucket.cpp $(Deps)
 $(IntDir)/hash_functions.o: $(SrcDir)/hash_functions.cpp $(Deps)
 	g++ -o $(IntDir)/hash_functions.o -c $(SrcDir)/hash_functions.cpp $(Compiler)
 
-# $(IntDir)/02_optimize/murmur3_optimized.o: $(SrcDir)/02_optimize/murmur3_optimized.asm $(Deps)
-# 	nasm -f elf64 $(SrcDir)/02_optimize/murmur3_optimized.asm -o $(IntDir)/02_optimize/murmur3_optimized.o 
+.FORCE:

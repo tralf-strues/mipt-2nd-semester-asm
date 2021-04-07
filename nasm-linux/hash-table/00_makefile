@@ -1,10 +1,12 @@
+OptimizationLevel = -O2
+
 AllWarnings    = -Wall -Wextra -pedantic
 SomeWarnings   = -Wall
 LittleWarnings = 
 NoWarnings     = -w
 
 Linker   = 
-Compiler = -g -DDEBUG $(AllWarnings)
+Compiler = $(OptimizationLevel) -DNDEBUG -DDEBUG $(NoWarnings)
 
 SrcDir = src
 BinDir = bin
@@ -17,7 +19,7 @@ Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h)
 Objs = $(IntDir)/$(VerDir)/main.o $(IntDir)/file_loader.o $(IntDir)/dictionary.o $(IntDir)/hash_table.o $(IntDir)/bucket.o $(IntDir)/hash_functions.o
 Exec = 00_compare_hashes.out
 
-$(BinDir)/$(Exec): $(Objs) $(Libs) $(Deps)
+$(BinDir)/$(Exec): $(Objs) $(Libs) $(Deps) .FORCE
 	g++ -o $(BinDir)/$(Exec) $(Linker) $(Objs) $(Libs) 
 
 $(IntDir)/$(VerDir)/main.o: $(SrcDir)/$(VerDir)/main.cpp $(Deps)
@@ -37,3 +39,5 @@ $(IntDir)/bucket.o: $(SrcDir)/bucket.cpp $(Deps)
 
 $(IntDir)/hash_functions.o: $(SrcDir)/hash_functions.cpp $(Deps)
 	g++ -o $(IntDir)/hash_functions.o -c $(SrcDir)/hash_functions.cpp $(Compiler)
+
+.FORCE:

@@ -19,5 +19,6 @@ uint32_t getFirstCharHash      (const char* string);
 uint32_t getSumCharsHash       (const char* string);
 uint32_t getXorRightRotateHash (const char* string);
 uint32_t getXorLeftRotateHash  (const char* string);
-// uint32_t getMurmur3Hash        (const char* string);
-extern uint32_t getMurmur3Hash (const char* string);
+uint32_t getMurmur3Hash        (const char* string);
+uint32_t getCrc32Hash          (const char* string);
+uint32_t getOPCrc32Hash        (const char* string) __attribute__((noinline));

@@ -348,4 +348,4 @@ _Z14getMurmur3HashPKc:
 	.section	.note.GNU-stack,"",@progbits
 
 ```
-
+Looking at the generated assembly code, it seems unlikely for me to be able to drastically change the performance. Though... 

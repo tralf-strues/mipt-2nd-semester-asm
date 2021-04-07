@@ -5,11 +5,11 @@
 
 const size_t WORDS_COUNT      = 466472; 
 const size_t HASH_TABLE_SIZE  = 491039; // 466,472 / 0.95 = 491,023 or 491039 (the nearest prime) 
-const size_t INSERTIONS_COUNT = 2;
-const size_t SEARCHES_COUNT   = 15; 
+const size_t INSERTIONS_COUNT = 5;
+const size_t SEARCHES_COUNT   = 5; 
 
 const char** readWords      (char** buffer);
-void         testInsertions (HashTable* hashTable, const char** words);
+void         testInsertions (HashTable* hashTable, const char** words); 
 void         testSearches   (HashTable* hashTable, const char** words);
 
 int main()
@@ -23,7 +23,7 @@ int main()
     assert(words);
 
     HashTable hashTable = {};
-    construct(&hashTable, HASH_TABLE_SIZE, strcmp, getMurmur3Hash); 
+    construct(&hashTable, HASH_TABLE_SIZE, strcmp, getCrc32Hash); 
 
     for (uint32_t i = 0; i < INSERTIONS_COUNT; i++)
     {
