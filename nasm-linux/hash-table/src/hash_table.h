@@ -68,11 +68,15 @@ void reallocHashTable(HashTable* hashTable);
 void remove(HashTable* hashTable, ht_key_t key);
 
 //------------------------------------------------------------------------------
-//! Get an element associated with key from hashTable.
+//! Finds an element associated with key in hashTable.
 //! 
 //! @param hashTable
 //! @param key
 //! 
 //! @return pointer to a value from pair (key, value).
 //------------------------------------------------------------------------------
-const ht_value_t* get(const HashTable* hashTable, ht_key_t key);
+#ifndef OPTIMIZED_FIND
+const ht_value_t* find(const HashTable* hashTable, ht_key_t key);
+#else
+extern const ht_value_t* find(const HashTable* hashTable, ht_key_t key);
+#endif

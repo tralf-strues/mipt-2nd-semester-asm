@@ -15,11 +15,11 @@ LibDir = libs
 VerDir = 00_compare_hashes
 
 Libs = $(wildcard $(LibDir)/*.a)
-Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h)
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h) .FORCE
 Objs = $(IntDir)/$(VerDir)/main.o $(IntDir)/file_loader.o $(IntDir)/dictionary.o $(IntDir)/hash_table.o $(IntDir)/bucket.o $(IntDir)/hash_functions.o
 Exec = 00_compare_hashes.out
 
-$(BinDir)/$(Exec): $(Objs) $(Libs) $(Deps) .FORCE
+$(BinDir)/$(Exec): $(Objs) $(Libs) $(Deps) 
 	g++ -o $(BinDir)/$(Exec) $(Linker) $(Objs) $(Libs) 
 
 $(IntDir)/$(VerDir)/main.o: $(SrcDir)/$(VerDir)/main.cpp $(Deps)

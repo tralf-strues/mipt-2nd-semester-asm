@@ -5,7 +5,12 @@ Bucket* construct(Bucket* bucket, size_t capacity)
     assert(bucket);
     assert(capacity > 0);
 
+#ifdef AVX_STRING_OPTIMIZATION
+    bucket->data = (Pair*) aligned_alloc(32, capacity * sizeof(Pair));
+#else 
     bucket->data = (Pair*) calloc(capacity, sizeof(Pair));
+#endif
+
     if (bucket->data == nullptr) { return nullptr; }
 
     bucket->size     = 0;
@@ -61,8 +66,16 @@ void resize(Bucket* bucket, size_t newCapacity)
     assert(bucket->data);
     assert(bucket->size <= bucket->capacity);
 
+#ifdef AVX_STRING_OPTIMIZATION
+    Pair* newData = (Pair*) aligned_alloc(32, newCapacity * sizeof(Pair));
+    assert(newData);
+
+    memcpy(newData, bucket->data, bucket->size);
+    free(bucket->data);
+#else 
     Pair* newData = (Pair*) realloc(bucket->data, newCapacity * sizeof(Pair));
     assert(newData);
+#endif
 
     bucket->data     = newData;
     bucket->capacity = newCapacity;

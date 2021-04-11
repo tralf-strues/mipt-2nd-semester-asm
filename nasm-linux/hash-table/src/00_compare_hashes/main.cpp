@@ -14,8 +14,8 @@ size_t HASH_TABLE_SIZES[HASH_TABLE_SIZES_COUNT] = {
             521,
             1031,
             2053,
-            4099,
-            8209
+            127579,
+            161599
         }; 
 
 uint32_t (*const HASH_FUNCTIONS[SAMPLES_COUNT]) (const char* string) = {
@@ -57,6 +57,10 @@ void runGnuplotScript    (size_t hashTableSize);
 
 int main()
 {
+    printf("size_t size = %d\n", sizeof(size_t));
+    printf("Bucket size = %d\n", sizeof(Bucket));
+    printf("Pair   size = %d\n", sizeof(Pair));
+
     for (uint32_t i = 0; i < HASH_TABLE_SIZES_COUNT; i++)
     {
         runTests(HASH_TABLE_SIZES[i]);

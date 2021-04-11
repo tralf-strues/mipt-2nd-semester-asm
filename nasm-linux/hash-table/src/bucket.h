@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <immintrin.h>
 
 #include "language.h"
 
@@ -23,7 +24,12 @@ typedef DictEntry   ht_value_t;
 
 struct Pair
 {
-    ht_key_t   key;
+#ifdef AVX_STRING_OPTIMIZATION
+    __m256i key;
+#else
+    ht_key_t key;
+#endif
+
     ht_value_t value;
 };
 

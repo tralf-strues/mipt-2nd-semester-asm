@@ -1,27 +1,28 @@
-###################################
-echo ""
-echo "====Testing distributions of hash functions===="
-make -f 00_makefile OptimizationLevel=-O3
-echo ""
+# ###################################
+# echo ""
+# echo "====Testing distributions of hash functions===="
+# make -f 00_makefile OptimizationLevel=-O3
+# echo ""
 
-cd bin
-./00_compare_hashes.out
-cd ..
-###################################
+# cd bin
+# ./00_compare_hashes.out
+# cd ..
+# ###################################
 
 ###################################
-echo ""
-echo ""
+OUTPUT_SPEED_TEST=res/00_compare_hashes/speed_comparison.txt
 
-for level in {0..1}
+echo "" > bin/$OUTPUT_SPEED_TEST
+
+for level in 3
 do
-    echo "====Testing speed of hash functions -O$level===="
-    make -f 00_makefile_speed_tests OptimizationLevel=-O$level
+    echo "====Testing speed of hash functions -O$level====" >> bin/$OUTPUT_SPEED_TEST
+    make -f 00_makefile_speed_tests OptimizationLevel=-O$level >> bin/$OUTPUT_SPEED_TEST
 
     cd bin
-    ./00_speed_tests.out
+    ./00_speed_tests.out >> $OUTPUT_SPEED_TEST
     cd ..
-    echo ""
-    echo ""
+    echo "" >> bin/$OUTPUT_SPEED_TEST
+    echo "" >> bin/$OUTPUT_SPEED_TEST
 done
 ###################################

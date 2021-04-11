@@ -13,13 +13,27 @@ This project comprises of three different parts:
   - [5. Xor and right rotate](#5-xor-and-right-rotate)
   - [6. Xor and left rotate](#6-xor-and-left-rotate)
   - [7. Murmur3](#7-murmur3-smirk_cat)
-  - [Conclusion](#conclusion)
+  - [8. CRC32](#8-crc32)
+  - [Standard deviations](#standard-deviations)
+  - [Execution time tests](#execution-time-tests)
+    - [Result for -O0](#result-for--o0-nanoseconds)
+    - [Result for -O1](#result-for--o1-nanoseconds)
+    - [Result for -O2](#result-for--o2-nanoseconds)
+    - [Result for -O3](#result-for--o3-nanoseconds)
+  - [Conclusion]()
 - **[Application](#application)**
   - [Chosen algorithm and HashTable size](#chosen-algorithm-and-hashtable-size)
+    - [Load factor = 0.75](#load-factor--075)
+    - [Load factor = 0.95](#load-factor--095)
   - [Functionality](#functionality)
     - [Giving definition to a single word](#giving-definition-to-a-single-word)
     - [Creating an html page from a txt document](#creating-an-html-page-from-a-txt-document)
 - **[Optimization](#optimization)**
+  - [Choosing testing strategy](#choosing-testing-strategy)
+    - [Failed attempt #1](#failed-attempt-1)
+    - [Failed attempt #2](#failed-attempt-2)
+    - [Final testing program](#final-testing-program)
+  - [Hash function optimization](#hash-function-optimization)
 
 # Comparing hash functions
 A shortened dictionary database has been used with the total number of words equal to 5608. For higher objectiveness 5 hash table sizes have been considered (521, 1031, 2053, 4099, 8209). The hash functions being compared are the following:
@@ -122,24 +136,145 @@ it's clear that all 8 least significant bits influence the result.
 ### HashTable size = 4099
 ![](bin/res/00_compare_hashes/size_4099/gnuplot_test_output7.svg)
 
+So far, this algorithm looks pretty solid - it produces an even distribution and has the lowest standard deviation.
+
+## 8. CRC32
+### Definition
+Classical cyclic redundancy check algorithm that uses exclusive or operation, bitwise shifts as well as a lookup table. For more information, read [this](https://en.wikipedia.org/wiki/Cyclic_redundancy_check).
+
+### HashTable size = 1031
+![](bin/res/00_compare_hashes/size_1031/gnuplot_test_output8.svg)
+
+### HashTable size = 4099
+![](bin/res/00_compare_hashes/size_4099/gnuplot_test_output8.svg)
+
 Unsurprisingly, this hashing algorithm has the best bucket distribution, which is expected for it involves significantly more operations and has been invented with multiple tests and research.
 
->More diagrams for sizes 521, 2053, 8209 as well as the shortened dictionary used can be found in "bin/res/00_compare_hashes/".
+>More diagrams for sizes 521, 2053, 8209 as well as the shortened dictionary used can be found in "[bin/res/00_compare_hashes/](https://github.com/tralf-strues/mipt-2nd-semester-asm/tree/main/nasm-linux/hash-table/bin/res/00_compare_hashes)".
 
-## Conclusion
+## Standard deviations 
 
-Here are the standard deviation for all the tests:
+Here are the standard deviations for all the tests:
 Algorithm|521|1031|2053|4099|8209
 ---------|---|----|----|----|----
 Constant|245.28|174.45|123.65|87.52|61.85
 String length|76.54|54.67|38.84|27.52|19.46
-First character|60.02|43|30.6|21.7|15.35
+First character|60.02|43.00|30.60|21.70|15.35
 Characters sum|7.41|4.98|4.36|3.36|2.47
-Xor and right rotate|8.2|4.18|2.28|1.74|1.25
+Xor and right rotate|8.20|4.18|2.28|1.74|1.25
 Xor and left rotate|3.57|2.53|1.88|1.35|0.95
-Murmur3|3.52|2.65|1.79|1.27|0.9
+Murmur3|3.51|2.60|1.85|1.26|0.91
+CRC32|3.16|2.30|1.63|1.15|0.83
 
-Murmur3 and the algorithm using exclusive or alongside left bitwise rotation have shown the best results. Between them, Murmur3's standard deviation (*1.266 on 4099 HashTable size*) is less than left rotation based algorithm's (*1.35 on 4099 HashTable size*). In addition Murmur3 has a more homogeneous distribution. But it comes with a higher cost.
+CRC32, Murmur3 and the algorithm using exclusive or alongside left bitwise rotation have shown the best results.
+
+## Execution time tests
+Each hash function has been tested 10^9 times on the same strings of size 3, 5, 10, 15 and 255 and average execution time of each one is calculated for flags -O[0-3]. The strings are:
+1. "*The*" (half average-length word)
+2. "*Meow!*" (average-length word)
+3. "*Witchcraft*" (double average-length word)
+4. "*Conceptualizing*" (triple average-length word)
+5. "*Evil is evil. Lesser, greater, middling, it's all the same. Proportions are negotiated, boundaries blurred. I'm not a pious hermit. I haven't done only good in my life. But if I'm to choose between one evil and another, then I prefer not to choose at all.*" (sentence)
+
+Entire log of the tests is located in [speed_comparison.txt](https://github.com/tralf-strues/mipt-2nd-semester-asm/tree/main/nasm-linux/hash-table/bin/res/00_compare_hashes/speed_comparison.txt):
+FIXME:
+```
+====Testing speed of hash functions -O0====
+g++ -o bin/intermediates/00_compare_hashes/main_speed_tests.o -c src/00_compare_hashes/main_speed_tests.cpp -O0 -DNDEBUG -w
+g++ -o bin/intermediates/hash_functions.o -c src/hash_functions.cpp -O0 -DNDEBUG -w
+g++ -o bin/00_speed_tests.out -O0 bin/intermediates/00_compare_hashes/main_speed_tests.o bin/intermediates/hash_functions.o  
+
+Testing constant hash
+Sample 0 [3]:	1.75009 ns	(Half average-length word)
+Sample 1 [5]:	1.7571 ns	(Average-length word)
+Sample 2 [10]:	1.74103 ns	(Double average-length word)
+Sample 3 [15]:	1.74729 ns	(Triple average-length word)
+Sample 4 [255]:	1.73826 ns	(Sentence)
+
+...
+
+Testing xor left rotate hash
+Sample 0 [3]:	14.4307 ns	(Half average-length word)
+Sample 1 [5]:	21.9597 ns	(Average-length word)
+Sample 2 [10]:	40.8886 ns	(Double average-length word)
+Sample 3 [15]:	60.4642 ns	(Triple average-length word)
+Sample 4 [255]:	1018.24 ns	(Sentence)
+
+Testing murmur3 hash
+Sample 0 [3]:	14.8457 ns	(Half average-length word)
+Sample 1 [5]:	20.0726 ns	(Average-length word)
+Sample 2 [10]:	25.2647 ns	(Double average-length word)
+Sample 3 [15]:	31.4789 ns	(Triple average-length word)
+Sample 4 [255]:	398.013 ns	(Sentence)
+
+Testing crc32 hash
+Sample 0 [3]:	7.98954 ns	(Half average-length word)
+Sample 1 [5]:	12.3422 ns	(Average-length word)
+Sample 2 [10]:	26.0927 ns	(Double average-length word)
+Sample 3 [15]:	40.4801 ns	(Triple average-length word)
+Sample 4 [255]:	871.369 ns	(Sentence)
+
+
+====Testing speed of hash functions -O1====
+g++ -o bin/intermediates/00_compare_hashes/main_speed_tests.o -c src/00_compare_hashes/main_speed_tests.cpp -O1 -DNDEBUG -w
+g++ -o bin/intermediates/hash_functions.o -c src/hash_functions.cpp -O1 -DNDEBUG -w
+g++ -o bin/00_speed_tests.out -O1 bin/intermediates/00_compare_hashes/main_speed_tests.o bin/intermediates/hash_functions.o  
+
+...
+```
+
+>For more information on how the tests were carried out, see [main_speed_tests.cpp](https://github.com/tralf-strues/mipt-2nd-semester-asm/blob/main/nasm-linux/hash-table/src/00_compare_hashes/main_speed_tests.cpp) and [00_run.sh](https://github.com/tralf-strues/mipt-2nd-semester-asm/blob/main/nasm-linux/hash-table/00_run.sh).
+
+### Result for -O0 (nanoseconds)
+Algorithm           |521 |1031|2053|4099|8209
+---------           |----|----|----|----|----
+Constant            |    |    |    |    |    
+String length       |    |    |    |    |    
+First character     |    |    |    |    |    
+Characters sum      |    |    |    |    |    
+Xor and right rotate|    |    |    |    |    
+Xor and left rotate |    |    |    |    |    
+Murmur3             |    |    |    |    |    
+CRC32               |    |    |    |    |    
+
+### Result for -O1 (nanoseconds)
+Algorithm           |521 |1031|2053|4099|8209
+---------           |----|----|----|----|----
+Constant            |    |    |    |    |    
+String length       |    |    |    |    |    
+First character     |    |    |    |    |    
+Characters sum      |    |    |    |    |    
+Xor and right rotate|    |    |    |    |    
+Xor and left rotate |    |    |    |    |    
+Murmur3             |    |    |    |    |    
+CRC32               |    |    |    |    |    
+
+### Result for -O2 (nanoseconds)
+Algorithm           |521 |1031|2053|4099|8209
+---------           |----|----|----|----|----
+Constant            |    |    |    |    |    
+String length       |    |    |    |    |    
+First character     |    |    |    |    |    
+Characters sum      |    |    |    |    |    
+Xor and right rotate|    |    |    |    |    
+Xor and left rotate |    |    |    |    |    
+Murmur3             |    |    |    |    |    
+CRC32               |    |    |    |    |    
+
+### Result for -O3 (nanoseconds)
+Algorithm           |521 |1031|2053|4099|8209
+---------           |----|----|----|----|----
+Constant            |    |    |    |    |    
+String length       |    |    |    |    |    
+First character     |    |    |    |    |    
+Characters sum      |    |    |    |    |    
+Xor and right rotate|    |    |    |    |    
+Xor and left rotate |    |    |    |    |    
+Murmur3             |    |    |    |    |    
+CRC32               |    |    |    |    |      
+
+## Conclusion
+Clearly, the winners seem to be Murmur3 and CRC32 for they have the best distribution results and execution times. And even though Murmur3 shows itself best for longer strings (due to it performing operations on four bytes at a time), on shorter ones it sometimes runs even slower than CRC32.
 
 # Application
 ## Chosen algorithm and HashTable size 
@@ -152,13 +287,17 @@ The full dictionary contains 121199 words. Below are the tests for [load factors
 
 ![](bin/res/00_compare_hashes/size_161599/gnuplot_test_output6.svg)
 ![](bin/res/00_compare_hashes/size_161599/gnuplot_test_output7.svg)
+![](bin/res/00_compare_hashes/size_161599/gnuplot_test_output8.svg)
 
 ### Load factor = 0.95
 
 ![](bin/res/00_compare_hashes/size_127579/gnuplot_test_output6.svg)
 ![](bin/res/00_compare_hashes/size_127579/gnuplot_test_output7.svg)
+![](bin/res/00_compare_hashes/size_127579/gnuplot_test_output8.svg)
 
-Left rotate algorithm shows itself quite badly here. In addition, the difference between load factors isn't that drastic for Murmur3, so 0.95 has been chosen in order to save some memory.
+Left rotate algorithm shows itself quite badly here. In addition, the difference between load factors isn't that drastic for Murmur3 and CRC32, so 0.95 has been chosen in order to save some memory with almost none performance cost. 
+
+Choosing between Murmur3 and CRC32 is a bit trickier. Even though the latter runs slower for long strings, the first one has only slightly worse standard deviation, and worse performance with optimization levels starting from 1 for short strings. Due to the fact that the Hash Table is used for a dictionary with words ranging from 4 to 10 letters on average, and CRC32 having a built-in hardware implementation by Intel as will be shown in the [optimization](#optimization) part, I have chosen CRC32.
 
 ## Functionality
 Help message looks like the following
@@ -196,12 +335,13 @@ $ ./define.out --doc hobbit_chapter1.txt -o hobbit_chapter1.html
 The word hovered on is 'door'.
 
 # Optimization
-TODO:
+First it is important to choose the way we test performance of the hash table.
+
 ## Choosing testing strategy
 ### Failed attempt #1
 Let's first try to analyze performance of the program on a txt file containing books "Harry Potter and the Chamber of Secrets", "Harry Potter and the Goblet of Fire", "Harry Potter and the Half-blood Prince", "Harry Potter and the Deathly Hallows" (30,684 lines and 2,646,069 characters total).
 
-Test time in average is TODO:
+Test time on average is TODO:
 ```
 Time: 2843.53 ms
 Time: 2699.05 ms
@@ -217,13 +357,6 @@ It's clear that the majority of CPU time is taken by io functions, which makes t
 ### Failed attempt #2
 Here I have removed writing to output file.
 
-Test time in average is TODO:
-``` 
-Time: 2843.53 ms
-Time: 2699.05 ms
-Time: 2608.24 ms
-```
-
 Let's look at the profiler
 
 ![](bin/res/../../images/callgrind_failed2.png)
@@ -231,121 +364,287 @@ Let's look at the profiler
 Still there functions at the top which aren't related to the Hash Table.
 
 ### Final testing program
-In order to minimize the time required by loading and parsing input file, I have found a [file](https://github.com/dwyl/english-words) containing just 466,472 words (with no definition whatsoever). 
-
-Test time in average is TODO:
-``` 
-Time: 2843.53 ms
-Time: 2699.05 ms
-Time: 2608.24 ms
-```
-
-Let's look at the profiler
+In order to minimize the time required by loading and parsing input file, I have found a [file](https://github.com/dwyl/english-words) containing just 466,472 words (with no definitions whatsoever). The test comprises of FIXME:10 insertions of all the words into the hash table and FIXME:120 searches of all of them. Let's look at the profiler
 
 ![](bin/res/../../images/callgrind_hash_table_only.png)
 
 This is much better! Now we can start optimizing the Hash Table.
 
 ## Hash function optimization
-Clearly the hash function takes most of the time, so it's worth the effort (probably) to rewrite it in assembly.
+Clearly the hash function takes most of the time, so it's worth the effort to decrease its execution time.
 
+### Code FIXME:
 GCC 
 ```
-g++ -S -O1 -masm=intel hash_functions.cpp -o hash_functions.asm
+g++ -S -DNDEBUG -O1 -masm=intel hash_functions.cpp -o hash_functions.s
 ```
-produces the following code for `getMurmur3()`:
+produces the following assembly listing for `getCrc32Hash()`:
 
 ```asm
-_Z14getMurmur3HashPKc:
-.LFB34:
+_Z12getCrc32HashPKc:
+.LFB47:
 	.cfi_startproc
-	push	rbx
-	.cfi_def_cfa_offset 16
-	.cfi_offset 3, -16
-	test	rdi, rdi
-	je	.L50
-	mov	rbx, rdi
-	call	strlen@PLT
-	mov	rdi, rax
-	mov	r8, rax
-	shr	r8, 2
-	cmp	rax, 3
-	jbe	.L46
-	mov	ecx, 0
-	mov	esi, 220202
+	movzx	eax, BYTE PTR [rdi]
+	test	al, al
+	je	.L38
 	mov	edx, 0
-.L42:
-	imul	eax, DWORD PTR [rbx+rdx*4], -862048943
-	rol	eax, 15
-	imul	eax, eax, 461845907
-	xor	eax, esi
-	rol	eax, 13
-	lea	esi, -430675100[rax+rax*4]
-	add	ecx, 1
-	mov	edx, ecx
-	cmp	rdx, r8
-	jb	.L42
-.L41:
-	mov	rax, rdi
-	and	rax, -4
-	add	rbx, rax
-	mov	rax, rdi
-	and	eax, 3
-	cmp	rax, 2
-	je	.L43
-	cmp	rax, 3
-	je	.L44
-	mov	edx, 0
-	cmp	rax, 1
-	je	.L51
-.L45:
-	imul	edx, edx, -862048943
-	rol	edx, 15
-	mov	eax, esi
-	xor	eax, edi
-	imul	esi, edx, 461845907
-	xor	eax, esi
-	mov	esi, eax
-	shr	esi, 16
-	xor	eax, esi
-	imul	esi, eax, -2048144789
-	mov	eax, esi
-	shr	eax, 13
-	xor	eax, esi
-	imul	eax, eax, -1028477387
-	mov	edx, eax
-	shr	edx, 16
+	lea	rsi, _ZL11CRC32_TABLE[rip]
+.L37:
+	mov	ecx, edx
+	sal	ecx, 8
+	shr	edx, 24
 	xor	eax, edx
+	movzx	eax, al
+	xor	ecx, DWORD PTR [rsi+rax*4]
+	mov	edx, ecx
+	add	rdi, 1
+	movzx	eax, BYTE PTR [rdi]
+	test	al, al
+	jne	.L37
+.L35:
+	mov	eax, edx
+	ret
+.L38:
+	mov	edx, 0
+	jmp	.L35
+	.cfi_endproc
+```
+As have already be mentioned, there is a built-in assembly crc32 instruction (read [this paper by Intel](https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/crc-iscsi-polynomial-crc32-instruction-paper.pdf) on the subject for more information). To incorporate it to my C code I used inline assembly (see [gnu documentation](https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html)):
+```c++
+uint32_t getOPCrc32Hash(const char* string)
+{
+    uint32_t hash = 0;
+
+    __asm__ 
+    (
+        ".intel_syntax noprefix          \n\t"
+        "xor rax, rax                    \n\t"
+        "xor r12, r12                    \n\t"
+        "                                \n\t"
+        ".LOOP_CRC32:                    \n\t"
+        "       mov r12b, BYTE PTR [rdi] \n\t"
+        "       test r12b, r12b          \n\t"
+        "       jz .LOOP_CRC32_END       \n\t"
+        "                                \n\t"
+        "       crc32 rax, r12b          \n\t"
+        "                                \n\t"
+        "       inc rdi                  \n\t"
+        "       jmp .LOOP_CRC32          \n\t"
+        ".LOOP_CRC32_END:                \n\t"
+        ".att_syntax                     \n\t"
+
+        :"=a"(hash)
+        :
+        :"r12", "rdi"
+    );
+    
+    return hash;
+}
+```
+
+### Performance boost
+This has improved overall performance quite significantly even with -O3. File [optimization_tests.txt](bin/res/02_optimize/optimization_tests.txt) contains comparison tests for the two versions and optimization flags -O0 through -O3 (in addition, it has tests of the next optimization). Also note that each version of the program has been tested 3 times to get a more precise average time.
+```
+optimization_tests.txt:
+
+TODO:
+```
+
+Version         |  -O0  |  -O1  |  -O2  |  -O3  
+----------------|-------|-------|-------|-------
+Not optimized   |       |       |       |        
+CRC32 optimized |       |       |       |  
+> Average time is given in seconds.
+
+So we have increased performance by
+FIXME:
+- -O0: 1.2
+- -O1: 1.2
+- -O2: 1.2
+- -O3: 1.2
+
+### Functions time distribution
+And now generated program's profile looks like the following:
+FIXME:
+![](images/callgrind_crc32_optimized.png)
+
+Hash function now has a lesser percentage of the total execution time. 
+
+## Optimizing HashTable's find() function 
+The second most time-cost function is HashTable's find().
+
+### Code FIXME:
+GCC
+```
+g++ -S -DNDEBUG -O1 -masm=intel hash_table.cpp -o hash_table.s
+```
+produces the following assembly listing for find():
+```asm
+_Z4findPK9HashTablePKc:
+.LFB51:
+	.cfi_startproc
+	push	r14
+	.cfi_def_cfa_offset 16
+	.cfi_offset 14, -16
+	push	r13
+	.cfi_def_cfa_offset 24
+	.cfi_offset 13, -24
+	push	r12
+	.cfi_def_cfa_offset 32
+	.cfi_offset 12, -32
+	push	rbp
+	.cfi_def_cfa_offset 40
+	.cfi_offset 6, -40
+	push	rbx
+	.cfi_def_cfa_offset 48
+	.cfi_offset 3, -48
+	mov	r13, rdi
+	mov	r14, rsi
+	mov	rdi, rsi
+	call	[QWORD PTR 24[r13]]
+	mov	eax, eax
+	mov	edx, 0
+	div	QWORD PTR 0[r13]
+	lea	rdx, [rdx+rdx*2]
+	mov	rax, QWORD PTR 8[r13]
+	lea	r12, [rax+rdx*8]
+	cmp	QWORD PTR 8[r12], 0
+	je	.L24
+	mov	ebp, 0
+	mov	eax, 0
+.L23:
+	sal	rax, 5
+	mov	rbx, rax
+	mov	rax, QWORD PTR [r12]
+	mov	rsi, QWORD PTR [rax+rbx]
+	mov	rdi, r14
+	call	[QWORD PTR 16[r13]]
+	test	eax, eax
+	je	.L27
+	add	ebp, 1
+	mov	eax, ebp
+	cmp	rax, QWORD PTR 8[r12]
+	jb	.L23
+	mov	eax, 0
+	jmp	.L20
+.L27:
+	mov	rax, rbx
+	add	rax, QWORD PTR [r12]
+	add	rax, 8
+.L20:
 	pop	rbx
 	.cfi_remember_state
+	.cfi_def_cfa_offset 40
+	pop	rbp
+	.cfi_def_cfa_offset 32
+	pop	r12
+	.cfi_def_cfa_offset 24
+	pop	r13
+	.cfi_def_cfa_offset 16
+	pop	r14
 	.cfi_def_cfa_offset 8
 	ret
-.L50:
+.L24:
 	.cfi_restore_state
-	lea	rcx, .LC8[rip]
-	mov	edx, 87
-	lea	rsi, .LC1[rip]
-	lea	rdi, .LC2[rip]
-	call	__assert_fail@PLT
-.L46:
-	mov	esi, 220202
-	jmp	.L41
-.L51:
-	movzx	edx, BYTE PTR [rbx]
-	jmp	.L45
-.L43:
-	movzx	edx, BYTE PTR 1[rbx]
-	sal	edx, 8
-	jmp	.L45
-.L44:
-	movzx	edx, BYTE PTR 2[rbx]
-	sal	edx, 16
-	jmp	.L45
+	mov	eax, 0
+	jmp	.L20
 	.cfi_endproc
-.LFE34:
-	.size	_Z14getMurmur3HashPKc, .-_Z14getMurmur3HashPKc
-	.ident	"GCC: (GNU) 10.2.0"
-	.section	.note.GNU-stack,"",@progbits
-
 ```
-Looking at the generated assembly code, it seems unlikely for me to be able to drastically change the performance. Though... 
+The code seems to have too many memory accessing instructions (including stack usage). So by rewriting the function in assembly completely, I managed to improve performance.
+
+```asm
+.globl _Z4findPK9HashTablePKc
+.type _Z4findPK9HashTablePKc, @function
+.intel_syntax noprefix
+
+# ------------------------------------------------------------------------------
+# Finds an element associated with key in hashTable.
+# 
+# Expects: RDI = constant pointer to a HashTable
+#          RSI = constant pointer to a string (key) 
+# 
+# Returns: RAX = constant pointer to value (DictEntry) or nullptr if there is 
+#          no element with key in hashTable.
+# ------------------------------------------------------------------------------
+_Z4findPK9HashTablePKc:
+                push r12 
+                push rbx 
+
+                mov rbx, rdi                    # rbx = hashTable
+                
+                mov rdi, rsi
+                call QWORD PTR [rbx + 24]       # rax = getHash(key)
+
+                xor rdx, rdx
+                div QWORD PTR [rbx]             # rdx = rdx:rax % hashTable->size = hash
+
+                mov rax, QWORD PTR [rbx + 8]    # rax = buckets
+                
+                # sizeof(Bucket) = 24
+                lea rdx, [rdx + 2 * rdx]     
+                lea rdx, [rax + 8 * rdx]        # &(buckets[hash])
+                
+                mov r12, QWORD PTR [rbx + 16]   # r12 = cmp
+                mov rbx, QWORD PTR [rdx]        # rbx = buckets[hash].data
+                mov rcx, QWORD PTR [rdx + 8]    # rcx = buckets[hash].size
+                
+                # rcx = rbx + 32 * rcx (sizeof(Pair)) = last + 1 bucket
+                lea rcx, [4 * rcx]           
+                lea rcx, [rbx + 8 * rcx]     
+
+.LOOP_FIND_PAIR:
+                cmp rbx, rcx 
+                jae .NOT_FOUND_PAIR
+
+                mov rdi, QWORD PTR [rbx]
+                call r12
+
+                test eax, eax 
+                jz .FOUND_PAIR
+
+                add rbx, 32
+                
+                jmp .LOOP_FIND_PAIR
+.FOUND_PAIR:
+                lea rax, [rbx + 8]
+                pop rbx
+                pop r12
+                ret
+.NOT_FOUND_PAIR:
+                xor rax, rax
+                pop rbx
+                pop r12
+                ret
+```
+
+### Performance boost
+Surprisingly, I managed to outperform even -O3's code again. 
+```
+optimization_tests.txt:
+
+TODO:
+```
+
+Version                  |  -O0  |  -O1  |  -O2  |  -O3  
+-------------------------|-------|-------|-------|-------
+Not optimized            |       |       |       |        
+CRC32 optimized          |       |       |       |  
+CRC32 + find() optimized |       |       |       |  
+> Average time is given in seconds.
+
+So we have increased performance (compared to the version CRC32 optimized) by
+FIXME:
+- -O0: 1.2
+- -O1: 1.2
+- -O2: 1.2
+- -O3: 1.2
+  
+### Functions time distribution
+And now program's profile looks like the following:
+FIXME:
+![callgrind_crc32_plus_find_optimized](images/callgrind_crc32_plus_find_optimized.png) 
+
+## Using YMM registers to store strings
+The last function that takes up the majority of computing time is `strcmp()`. Clearly, `strcmp_avx2()` (which you can see on the previous diagrams) is already optimized compared to a straightforward implementation of `strcmp()`. So it seems, there's nothing one can do in this situation... 
+
+But, keeping in mind that we store English words in the hash table, we can benefit from the length of words being comparatively small. Having looked at the dictionary, I found out that there are no words longer or equal to 32 characters. This is why we can simply use YMM registers (introduced with [AVX](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions)) to store words! Comparing words would be much faster this way.

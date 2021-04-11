@@ -115,7 +115,7 @@ const DictEntry* getDictionaryEntry(const Dictionary* dictionary, const char* wo
 
     lowerWord[i] = '\0';
 
-    return get(&(dictionary->hashTable), lowerWord);
+    return find(&(dictionary->hashTable), lowerWord);
 }
 
 void printDictEntry(FILE* output, const DictEntry* dictEntry)

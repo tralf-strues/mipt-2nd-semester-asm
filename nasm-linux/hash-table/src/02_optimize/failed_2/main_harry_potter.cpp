@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "../../dictionary.h"
+#include "../../hash_functions.h"
 #include "../../file_loader.h"
 #include "html_writer.h"
 
@@ -67,6 +68,8 @@ const char* HELP_MESSAGE = "These are commands for define:\n"
 
 const char* DEFAULT_OUTPUT_FILENAME = "defined.html";
 
+const size_t TEST_HASH_TABLE_SIZE = 127579;
+
 int main(int argc, char* argv[])
 {
     timespec startTime = {};
@@ -90,7 +93,7 @@ int main(int argc, char* argv[])
     fclose(databaseFile);
 
     Dictionary dictionary = {};
-    initDictionary(&dictionary);
+    initDictionary(&dictionary, TEST_HASH_TABLE_SIZE, getCrc32Hash);
     loadDictionary(&dictionary, buffer, bufferSize);
 
     if (handler.word != nullptr)

@@ -85,8 +85,8 @@ static const uint32_t CRC32_TABLE[] = {
         0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
     };
 
-uint32_t leftRotate  (uint32_t value, uint32_t rotation);
-uint32_t rightRotate (uint32_t value, uint32_t rotation);
+inline uint32_t leftRotate  (uint32_t value, uint32_t rotation);
+inline uint32_t rightRotate (uint32_t value, uint32_t rotation);
 
 uint32_t getConstantHash(const char* string)
 {
@@ -213,118 +213,51 @@ uint32_t getOPCrc32Hash(const char* string)
 
     __asm__ 
     (
-        ".intel_syntax noprefix        \n\t"
-        "                              \n\t"
-        "mov rax, 220202               \n\t"
-        "                              \n\t"
-        ".LOOP:                        \n\t"
-        "       mov cl, BYTE PTR [rdi] \n\t"
-        "       test cl, cl            \n\t"
-        "       jz .LOOP_END           \n\t"
-        "                              \n\t"
-        "       crc32 rax, cl          \n\t"
-        "                              \n\t"
-        "       inc rdi                \n\t"
-        "       jmp .LOOP              \n\t"
-        ".LOOP_END:                    \n\t"    
-        "                              \n\t"
-        ".att_syntax                   \n\t"
+        ".intel_syntax noprefix          \n\t"
+        "xor rax, rax                    \n\t"
+        "xor r12, r12                    \n\t"
+        "                                \n\t"
+        ".LOOP_CRC32:                    \n\t"
+        "       mov r12b, BYTE PTR [rdi] \n\t"
+        "       test r12b, r12b          \n\t"
+        "       jz .LOOP_CRC32_END       \n\t"
+        "                                \n\t"
+        "       crc32 rax, r12b          \n\t"
+        "                                \n\t"
+        "       inc rdi                  \n\t"
+        "       jmp .LOOP_CRC32          \n\t"
+        ".LOOP_CRC32_END:                \n\t"
+        ".att_syntax                     \n\t"
 
         :"=a"(hash)
-        :
-        :"rdi", "rcx"
+        :"g"(hash)
+        :"r12", "rdi"
     );
+
+    // __asm__ 
+    // (
+    //     ".intel_syntax noprefix         \n\t"
+    //     "xor %0, %0                     \n\t"
+    //     "xor r12, r12                   \n\t"
+    //     "                               \n\t"
+    //     ".LOOP:                         \n\t"
+    //     "       mov r12b, BYTE PTR [%1] \n\t"
+    //     "       test r12b, r12b         \n\t"
+    //     "       jz .LOOP_END            \n\t"
+    //     "                               \n\t"
+    //     "       crc32 %0, r12b          \n\t"
+    //     "                               \n\t"
+    //     "       inc %1                  \n\t"
+    //     "       jmp .LOOP               \n\t"
+    //     ".LOOP_END:                     \n\t"
+    //     ".att_syntax                    \n\t"
+
+    //     :"=r"(hash)
+    //     :"0"(hash), "r"(string) 
+    //     :"r12"
+    // );
     
     return hash;
-
-    // __asm__ 
-    // (
-    //     "movq $220202, %%rax       \n\t"
-    //     ".LOOP:                    \n\t"
-    //     "       movb (%%rdi), %%cl \n\t"
-    //     "       test %%cl, %%cl    \n\t"
-    //     "       jz .LOOP_END       \n\t"
-    //     "       crc32 %%cl, %%rax  \n\t"
-    //     "       inc %%rdi          \n\t"
-    //     "       jmp .LOOP          \n\t"
-    //     ".LOOP_END:                \n\t"    
-
-    //     :"=a"(hash)
-    //     :
-    //     :"rdi", "rcx"
-    // );
-    
-    // return hash;
-    // asm (
-    //     "pushq %%r12\n\t"
-    //     "movq $0, %%rax\n\t"
-    //     "xor %%r12, %%r12\n\t"
-    //     "cycle:\n\t"
-    //     "movb (%%rdi), %%r12b\n\t"
-    //     "test %%r12b, %%r12b\n\t"
-    //     "jz end_cycle\n\t"
-    //     "crc32 %%r12b, %%rax\n\t"
-    //     "inc %%rdi\n\t"
-    //     "jmp cycle\n\t"
-    //     "end_cycle:\n\t"
-    //     "popq %%r12\n\t"
-    //     :"=a"(result)
-    //     );
-    
-
-    // __asm__
-    // (
-    //     "pushq %r12\n\t"
-    //     "movq $0x00, %rax\n\t"
-    //     "xor %r12, %r12\n\t"
-    //     "cycle:\n\t"
-    //     "movb (%rdi), %r12b\n\t"
-    //     "test %r12b, %r12b\n\t"
-    //     "jz end_cycle\n\t"
-    //     "crc32 %r12b, %rax\n\t"
-    //     "inc %rdi\n\t"
-    //     "jmp cycle\n\t"
-    //     "end_cycle:\n\t"
-    //     "popq %r12\n\t"
-    //     "popq %rbp\n\t"
-    //     "ret\n\t"
-    // );
-
-    // __asm__ 
-    // (
-    //     "push rcx                      \n"
-    //     "mov rax, 220202               \n"
-    //     ".LOOP:                        \n"
-    //     "       movb (%rdi), BYTE PTR [rdi] \n"
-    //     "       test %cl, %cl            \n"
-    //     "       jz .LOOP_END           \n"
-    //     "       crc32 %cl, %rax          \n"
-    //     "       inc %rdi                \n"
-    //     "       jmp .LOOP              \n"
-    //     ".LOOP_END:                    \n"
-    //     "popq %rcx                       \n"
-    //     "popq %rbp                       \n"
-    //     "ret                           \n"
-    // );
-
-    // __asm__ volatile
-    // (
-    //     ".intel_syntax noprefix        \n"
-    //     "push rcx                      \n"
-    //     "mov rax, 220202               \n"
-    //     ".LOOP:                        \n"
-    //     "       mov cl, BYTE PTR [rdi] \n"
-    //     "       test cl, cl            \n"
-    //     "       jz .LOOP_END           \n"
-    //     "       crc32 rax, cl          \n"
-    //     "       inc rdi                \n"
-    //     "       jmp .LOOP              \n"
-    //     ".LOOP_END:                    \n"
-    //     "pop rcx                       \n"
-    //     "pop rbp                       \n"
-    //     "ret                           \n"
-    //     ".att_syntax                   \n"
-    // );
 }
 
 uint32_t leftRotate(uint32_t value, uint32_t rotation)  

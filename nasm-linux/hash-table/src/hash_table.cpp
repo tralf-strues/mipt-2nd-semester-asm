@@ -45,8 +45,17 @@ void destroy(HashTable* hashTable)
     hashTable->getHash = nullptr;
 }
 
-// TODO: DEBUG
-size_t heres = 0;
+#ifdef AVX_STRING_OPTIMIZATION
+__m256i strToYMM(const char* string)
+{
+    assert(string);
+
+    char buffer[sizeof(__m256i)] = "";
+    strcpy(buffer, string);
+    
+    return _mm256_loadu_si256((const __m256i_u*) buffer);
+}
+#endif
 
 void insert(HashTable* hashTable, ht_key_t key, ht_value_t value)
 {
@@ -58,6 +67,26 @@ void insert(HashTable* hashTable, ht_key_t key, ht_value_t value)
     uint32_t hash   = (hashTable->getHash(key)) % hashTable->size;
     Bucket*  bucket = hashTable->buckets + hash; 
 
+#ifdef AVX_STRING_OPTIMIZATION
+    
+    __m256i keyString = strToYMM(key);
+
+    // Checks whether the value is already in bucket
+    for (uint32_t i = 0; i < bucket->size; i++)
+    {
+        // __m256i bucketElemString = _mm256_loadu_si256((const __m256i_u*) &(bucket->data[i].key));
+        __m256i bucketElemString = bucket->data[i].key;
+        __m256i cmpResult        = _mm256_cmpeq_epi8(keyString, bucketElemString);
+        if (~_mm256_movemask_epi8(cmpResult) == 0)
+        {
+            return;
+        }
+    }
+
+    pushBack(bucket, {keyString, value});
+
+#else 
+    
     // Checks whether the value is already in bucket
     for (uint32_t i = 0; i < bucket->size; i++)
     {
@@ -65,9 +94,11 @@ void insert(HashTable* hashTable, ht_key_t key, ht_value_t value)
         {
             return;
         }
-    }
-
+    }    
+    
     pushBack(bucket, {key, value});
+
+#endif
 }
 
 void reallocHashTable(HashTable* hashTable)
@@ -83,7 +114,8 @@ void remove(HashTable* hashTable, ht_key_t key)
     // TODO:
 }
 
-const ht_value_t* get(const HashTable* hashTable, ht_key_t key)
+#ifndef OPTIMIZED_FIND
+const ht_value_t* find(const HashTable* hashTable, ht_key_t key)
 {
     assert(hashTable);
     assert(hashTable->buckets);
@@ -93,15 +125,35 @@ const ht_value_t* get(const HashTable* hashTable, ht_key_t key)
     uint32_t hash   = hashTable->getHash(key) % hashTable->size;
     Bucket*  bucket = hashTable->buckets + hash; 
     
-    int (*cmp) (const ht_key_t first, const ht_key_t second) = hashTable->cmp;
+#ifdef AVX_STRING_OPTIMIZATION
+    __m256i keyString = strToYMM(key);
+
+    // Checks whether the value is already in bucket
     for (uint32_t i = 0; i < bucket->size; i++)
     {
-        // Checks whether the value is already in hashTable
-        if (cmp(key, bucket->data[i].key) == 0)
+        // __m256i bucketElemString = _mm256_loadu_si256((const __m256i_u*) &(bucket->data[i].key));
+        __m256i bucketElemString = bucket->data[i].key;
+        __m256i cmpResult        = _mm256_cmpeq_epi8(keyString, bucketElemString);
+        if (~_mm256_movemask_epi8(cmpResult) == 0)
         {
             return &(bucket->data[i].value);
         }
     }
 
     return nullptr;
+#else 
+    
+    // Checks whether the value is already in bucket
+    for (uint32_t i = 0; i < bucket->size; i++)
+    {
+        if (hashTable->cmp(key, bucket->data[i].key) == 0)
+        {
+            return &(bucket->data[i].value);
+        }
+    }    
+    
+    return nullptr;
+#endif
+
 }
+#endif

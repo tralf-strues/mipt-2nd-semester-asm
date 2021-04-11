@@ -1,0 +1,69 @@
+# ================ Version ================
+OptimizeAVX         = 0
+OptimizeFind        = 0
+OptimizationVersion = 
+OptimizationLevel   = -O2
+
+OPTIMIZE_FIND_DEFINE   = 
+OPTIMIZE_FIND_ASM_FILE = 
+ifneq ($(OptimizeFind), 0)
+	OPTIMIZE_FIND_DEFINE = -DOPTIMIZED_FIND
+	
+	ifneq ($(OptimizeAVX), 0)
+		OPTIMIZE_FIND_ASM_FILE = $(SrcDir)/$(VerDir)/optimized_find_avx.s
+	else
+		OPTIMIZE_FIND_ASM_FILE = $(SrcDir)/$(VerDir)/optimized_find.s
+	endif
+endif
+
+OPTIMIZE_AVX_DEFINE = 
+ifneq ($(OptimizeAVX), 0)
+	OPTIMIZE_AVX_DEFINE = -DAVX_STRING_OPTIMIZATION
+endif
+# ================ Version ================
+
+# ================ Options ================
+AllWarnings    = -Wall -Wextra -pedantic
+SomeWarnings   = -Wall
+LittleWarnings = 
+NoWarnings     = 
+
+Linker   = $(OptimizationLevel)
+# FIXME: -g
+Compiler = $(OptimizationLevel) -g -mavx2 -march=native -DNDEBUG -D$(OptimizationVersion) $(OPTIMIZE_FIND_DEFINE) $(OPTIMIZE_AVX_DEFINE) $(NoWarnings)
+# ================ Constants ================
+
+# ================ Files ================
+SrcDir = src
+BinDir = bin
+IntDir = $(BinDir)/intermediates
+LibDir = libs
+VerDir = 02_optimize/optimized
+
+Libs = $(wildcard $(LibDir)/*.a)
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h) .FORCE
+Objs = $(IntDir)/$(VerDir)/main_optimized.o $(IntDir)/file_loader.o $(IntDir)/hash_table.o $(IntDir)/bucket.o $(IntDir)/hash_functions.o
+Exec = 02_optimized.out
+# ================ Files ================
+
+# ================ Make rules ================
+$(BinDir)/$(Exec): $(Objs) $(Libs) $(Deps)
+	g++ -o $(BinDir)/$(Exec) $(Linker) $(OPTIMIZE_FIND_ASM_FILE) $(Objs) $(Libs) 
+
+$(IntDir)/$(VerDir)/main_optimized.o: $(SrcDir)/$(VerDir)/main_optimized.cpp $(Deps)
+	g++ -o $(IntDir)/$(VerDir)/main_optimized.o -c $(SrcDir)/$(VerDir)/main_optimized.cpp $(Compiler) 
+
+$(IntDir)/file_loader.o: $(SrcDir)/file_loader.cpp $(Deps)
+	g++ -o $(IntDir)/file_loader.o -c $(SrcDir)/file_loader.cpp $(Compiler)
+
+$(IntDir)/hash_table.o: $(SrcDir)/hash_table.cpp $(Deps)
+	g++ -o $(IntDir)/hash_table.o -c $(SrcDir)/hash_table.cpp $(Compiler) 
+
+$(IntDir)/bucket.o: $(SrcDir)/bucket.cpp $(Deps)
+	g++ -o $(IntDir)/bucket.o -c $(SrcDir)/bucket.cpp $(Compiler)
+
+$(IntDir)/hash_functions.o: $(SrcDir)/hash_functions.cpp $(Deps)
+	g++ -o $(IntDir)/hash_functions.o -c $(SrcDir)/hash_functions.cpp $(Compiler) 
+# ================ Make rules ================
+
+.FORCE:
