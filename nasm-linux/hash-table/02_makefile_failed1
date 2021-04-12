@@ -1,10 +1,21 @@
+OptimizationLevel   = -O2
+Optimize            = 0
+OptimizationVersion = HASH_TABLE_ONLY
+
+ifneq ($(Optimize), 0)
+	OptimizationVersion    = CRC32_OPTIMIZED
+	OPTIMIZE_AVX_DEFINE    = -DAVX_STRING_OPTIMIZATION
+	OPTIMIZE_FIND_DEFINE   = -DOPTIMIZED_FIND
+	OPTIMIZE_FIND_ASM_FILE = $(SrcDir)/02_optimize/optimized/optimized_find_avx.s
+endif
+
 AllWarnings    = -Wall -Wextra -pedantic
 SomeWarnings   = -Wall
 LittleWarnings = 
 NoWarnings     = 
 
-Linker   = 
-Compiler = -O1 -DDEBUG $(NoWarnings)
+Linker   = $(OptimizationLevel) -no-pie
+Compiler = $(OptimizationLevel) -mavx2 -no-pie -march=native -DDEBUG -DNDEBUG -D$(OptimizationVersion) $(OPTIMIZE_FIND_DEFINE) $(OPTIMIZE_AVX_DEFINE) $(NoWarnings)
 
 SrcDir = src
 BinDir = bin
@@ -13,12 +24,12 @@ LibDir = libs
 VerDir = 02_optimize/failed_1
 
 Libs = $(wildcard $(LibDir)/*.a)
-Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h)
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h) .FORCE
 Objs = $(IntDir)/$(VerDir)/main_harry_potter.o $(IntDir)/$(VerDir)/html_writer.o $(IntDir)/file_loader.o $(IntDir)/dictionary.o $(IntDir)/hash_table.o $(IntDir)/bucket.o $(IntDir)/hash_functions.o
 Exec = 02_failed1.out
 
 $(BinDir)/$(Exec): $(Objs) $(Libs) $(Deps)
-	g++ -o $(BinDir)/$(Exec) $(Linker) $(Objs) $(Libs) 
+	g++ -o $(BinDir)/$(Exec) $(Linker) $(OPTIMIZE_FIND_ASM_FILE) $(Objs) $(Libs) 
 
 $(IntDir)/$(VerDir)/main_harry_potter.o: $(SrcDir)/$(VerDir)/main_harry_potter.cpp $(Deps)
 	g++ -o $(IntDir)/$(VerDir)/main_harry_potter.o -c $(SrcDir)/$(VerDir)/main_harry_potter.cpp $(Compiler)
@@ -40,3 +51,5 @@ $(IntDir)/bucket.o: $(SrcDir)/bucket.cpp $(Deps)
 
 $(IntDir)/hash_functions.o: $(SrcDir)/hash_functions.cpp $(Deps)
 	g++ -o $(IntDir)/hash_functions.o -c $(SrcDir)/hash_functions.cpp $(Compiler)
+
+.FORCE:

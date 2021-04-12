@@ -17,8 +17,6 @@ This project comprises of three different parts:
   - [Standard deviations](#standard-deviations)
   - [Execution time tests](#execution-time-tests)
     - [Result for -O0](#result-for--o0-nanoseconds)
-    - [Result for -O1](#result-for--o1-nanoseconds)
-    - [Result for -O2](#result-for--o2-nanoseconds)
     - [Result for -O3](#result-for--o3-nanoseconds)
   - [Conclusion]()
 - **[Application](#application)**
@@ -185,93 +183,86 @@ g++ -o bin/intermediates/hash_functions.o -c src/hash_functions.cpp -O0 -DNDEBUG
 g++ -o bin/00_speed_tests.out -O0 bin/intermediates/00_compare_hashes/main_speed_tests.o bin/intermediates/hash_functions.o  
 
 Testing constant hash
-Sample 0 [3]:	1.75009 ns	(Half average-length word)
-Sample 1 [5]:	1.7571 ns	(Average-length word)
-Sample 2 [10]:	1.74103 ns	(Double average-length word)
-Sample 3 [15]:	1.74729 ns	(Triple average-length word)
-Sample 4 [255]:	1.73826 ns	(Sentence)
+Sample 0 [3]:	2.24635 ns	(Half average-length word)
+Sample 1 [5]:	1.77401 ns	(Average-length word)
+Sample 2 [10]:	1.72516 ns	(Double average-length word)
+Sample 3 [15]:	1.71477 ns	(Triple average-length word)
+Sample 4 [255]:	1.71628 ns	(Sentence)
+
+...
+
+====Testing speed of hash functions -O3====
+g++ -o bin/intermediates/00_compare_hashes/main_speed_tests.o -c src/00_compare_hashes/main_speed_tests.cpp -O3 -DNDEBUG -w
+g++ -o bin/intermediates/hash_functions.o -c src/hash_functions.cpp -O3 -DNDEBUG -w
+g++ -o bin/00_speed_tests.out -O3 bin/intermediates/00_compare_hashes/main_speed_tests.o bin/intermediates/hash_functions.o  
+
+Testing constant hash
+Sample 0 [3]:	1.27853 ns	(Half average-length word)
+Sample 1 [5]:	1.2118 ns	(Average-length word)
+Sample 2 [10]:	1.20717 ns	(Double average-length word)
+Sample 3 [15]:	1.19389 ns	(Triple average-length word)
+Sample 4 [255]:	1.19498 ns	(Sentence)
 
 ...
 
 Testing xor left rotate hash
-Sample 0 [3]:	14.4307 ns	(Half average-length word)
-Sample 1 [5]:	21.9597 ns	(Average-length word)
-Sample 2 [10]:	40.8886 ns	(Double average-length word)
-Sample 3 [15]:	60.4642 ns	(Triple average-length word)
-Sample 4 [255]:	1018.24 ns	(Sentence)
+Sample 0 [3]:	7.02953 ns	(Half average-length word)
+Sample 1 [5]:	9.87868 ns	(Average-length word)
+Sample 2 [10]:	17.2935 ns	(Double average-length word)
+Sample 3 [15]:	24.6277 ns	(Triple average-length word)
+Sample 4 [255]:	382.953 ns	(Sentence)
 
 Testing murmur3 hash
-Sample 0 [3]:	14.8457 ns	(Half average-length word)
-Sample 1 [5]:	20.0726 ns	(Average-length word)
-Sample 2 [10]:	25.2647 ns	(Double average-length word)
-Sample 3 [15]:	31.4789 ns	(Triple average-length word)
-Sample 4 [255]:	398.013 ns	(Sentence)
+Sample 0 [3]:	4.69705 ns	(Half average-length word)
+Sample 1 [5]:	5.07867 ns	(Average-length word)
+Sample 2 [10]:	5.81174 ns	(Double average-length word)
+Sample 3 [15]:	6.22499 ns	(Triple average-length word)
+Sample 4 [255]:	72.6188 ns	(Sentence)
 
 Testing crc32 hash
-Sample 0 [3]:	7.98954 ns	(Half average-length word)
-Sample 1 [5]:	12.3422 ns	(Average-length word)
-Sample 2 [10]:	26.0927 ns	(Double average-length word)
-Sample 3 [15]:	40.4801 ns	(Triple average-length word)
-Sample 4 [255]:	871.369 ns	(Sentence)
+Sample 0 [3]:	3.30064 ns	(Half average-length word)
+Sample 1 [5]:	4.28765 ns	(Average-length word)
+Sample 2 [10]:	9.62293 ns	(Double average-length word)
+Sample 3 [15]:	15.9525 ns	(Triple average-length word)
+Sample 4 [255]:	506.83 ns	(Sentence)
 
-
-====Testing speed of hash functions -O1====
-g++ -o bin/intermediates/00_compare_hashes/main_speed_tests.o -c src/00_compare_hashes/main_speed_tests.cpp -O1 -DNDEBUG -w
-g++ -o bin/intermediates/hash_functions.o -c src/hash_functions.cpp -O1 -DNDEBUG -w
-g++ -o bin/00_speed_tests.out -O1 bin/intermediates/00_compare_hashes/main_speed_tests.o bin/intermediates/hash_functions.o  
-
-...
+Testing optimized crc32 hash
+Sample 0 [3]:	2.62107 ns	(Half average-length word)
+Sample 1 [5]:	3.73992 ns	(Average-length word)
+Sample 2 [10]:	5.97254 ns	(Double average-length word)
+Sample 3 [15]:	8.32176 ns	(Triple average-length word)
+Sample 4 [255]:	166.021 ns	(Sentence)
 ```
 
 >For more information on how the tests were carried out, see [main_speed_tests.cpp](https://github.com/tralf-strues/mipt-2nd-semester-asm/blob/main/nasm-linux/hash-table/src/00_compare_hashes/main_speed_tests.cpp) and [00_run.sh](https://github.com/tralf-strues/mipt-2nd-semester-asm/blob/main/nasm-linux/hash-table/00_run.sh).
 
 ### Result for -O0 (nanoseconds)
-Algorithm           |521 |1031|2053|4099|8209
----------           |----|----|----|----|----
-Constant            |    |    |    |    |    
-String length       |    |    |    |    |    
-First character     |    |    |    |    |    
-Characters sum      |    |    |    |    |    
-Xor and right rotate|    |    |    |    |    
-Xor and left rotate |    |    |    |    |    
-Murmur3             |    |    |    |    |    
-CRC32               |    |    |    |    |    
-
-### Result for -O1 (nanoseconds)
-Algorithm           |521 |1031|2053|4099|8209
----------           |----|----|----|----|----
-Constant            |    |    |    |    |    
-String length       |    |    |    |    |    
-First character     |    |    |    |    |    
-Characters sum      |    |    |    |    |    
-Xor and right rotate|    |    |    |    |    
-Xor and left rotate |    |    |    |    |    
-Murmur3             |    |    |    |    |    
-CRC32               |    |    |    |    |    
-
-### Result for -O2 (nanoseconds)
-Algorithm           |521 |1031|2053|4099|8209
----------           |----|----|----|----|----
-Constant            |    |    |    |    |    
-String length       |    |    |    |    |    
-First character     |    |    |    |    |    
-Characters sum      |    |    |    |    |    
-Xor and right rotate|    |    |    |    |    
-Xor and left rotate |    |    |    |    |    
-Murmur3             |    |    |    |    |    
-CRC32               |    |    |    |    |    
+Algorithm           |3      |5      |10     |15     |255
+--------------------|-------|-------|-------|-------|-------
+Constant            |2.25   |1.77   |1.72   |1.71   |1.72    
+String length       |3.81   |3.96   |3.75   |4.04   |7.25    
+First character     |3.36   |3.33   |3.34   |3.33   |3.33    
+Characters sum      |8.88   |13.29  |32.90  |35.16  |571.75    
+Xor and right rotate|12.14  |18.87  |35.65  |52.24  |875.86    
+Xor and left rotate |12.86  |19.40  |36.14  |52.76  |858.10    
+Murmur3             |14.38  |19.32  |24.45  |30.59  |386.84
+CRC32               |8.69   |12.51  |25.07  |38.84  |835.02
+CRC32 optimized     |4.04   |4.48   |6.41   |8.59   |166.31
 
 ### Result for -O3 (nanoseconds)
-Algorithm           |521 |1031|2053|4099|8209
----------           |----|----|----|----|----
-Constant            |    |    |    |    |    
-String length       |    |    |    |    |    
-First character     |    |    |    |    |    
-Characters sum      |    |    |    |    |    
-Xor and right rotate|    |    |    |    |    
-Xor and left rotate |    |    |    |    |    
-Murmur3             |    |    |    |    |    
-CRC32               |    |    |    |    |      
+Algorithm           |3      |5      |10     |15     |255
+--------------------|-------|-------|-------|-------|-------
+Constant            |1.28   |1.21   |1.21   |1.19   |1.19
+String length       |4.07   |3.19   |3.42   |3.11   |5.97
+First character     |2.36   |2.33   |2.37   |2.35   |2.37
+Characters sum      |6.60   |9.57   |16.82  |24.10  |379.96
+Xor and right rotate|7.07   |10.51  |19.04  |27.58  |442.25
+Xor and left rotate |7.03   |9.88   |17.29  |24.63  |382.95
+Murmur3             |4.70   |5.08   |5.81   |6.22   |72.62
+CRC32               |3.30   |4.29   |9.62   |15.95  |506.83
+CRC32 optimized     |2.62   |3.74   |5.97   |8.32   |166.02
+
+>CRC32 optimized is discussed later. 
 
 ## Conclusion
 Clearly, the winners seem to be Murmur3 and CRC32 for they have the best distribution results and execution times. And even though Murmur3 shows itself best for longer strings (due to it performing operations on four bytes at a time), on shorter ones it sometimes runs even slower than CRC32.
@@ -341,18 +332,11 @@ First it is important to choose the way we test performance of the hash table.
 ### Failed attempt #1
 Let's first try to analyze performance of the program on a txt file containing books "Harry Potter and the Chamber of Secrets", "Harry Potter and the Goblet of Fire", "Harry Potter and the Half-blood Prince", "Harry Potter and the Deathly Hallows" (30,684 lines and 2,646,069 characters total).
 
-Test time on average is TODO:
-```
-Time: 2843.53 ms
-Time: 2699.05 ms
-Time: 2608.24 ms
-```
-
 Let's look at the profiler
 
 ![](bin/res/../../images/callgrind_failed1.png)
 
-It's clear that the majority of CPU time is taken by io functions, which makes the test not objective. 
+It's clear that the majority of CPU time is taken by I/O functions, which makes the test not objective. 
 
 ### Failed attempt #2
 Here I have removed writing to output file.
@@ -361,10 +345,10 @@ Let's look at the profiler
 
 ![](bin/res/../../images/callgrind_failed2.png)
 
-Still there functions at the top which aren't related to the Hash Table.
+Still there are functions at the top which aren't related to the Hash Table.
 
 ### Final testing program
-In order to minimize the time required by loading and parsing input file, I have found a [file](https://github.com/dwyl/english-words) containing just 466,472 words (with no definitions whatsoever). The test comprises of FIXME:10 insertions of all the words into the hash table and FIXME:120 searches of all of them. Let's look at the profiler
+In order to minimize the time required by loading and parsing input file, I have found a [file](https://github.com/dwyl/english-words) containing just 466,472 words (with no definitions whatsoever). The test comprises of FIXME:5 insertions of all the words into the hash table and FIXME:150 searches of all of them. Let's look at the profiler
 
 ![](bin/res/../../images/callgrind_hash_table_only.png)
 

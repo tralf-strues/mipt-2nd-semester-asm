@@ -10,13 +10,6 @@
 #include "../../file_loader.h"
 #include "html_writer.h"
 
-// TODO:
-// 1) keep in mind apostrophe "<Librarian>'s book"
-// 2) in loading dictionary add ASSERT_PARSER
-// 3) add ASSERT_BUCKET
-// 4) Add links to paragraphs in README
-// 5) Make a universal MAX_WORD_LENGTH constant
-
 enum FlagId 
 {
     FLAG_HELP,
@@ -93,7 +86,14 @@ int main(int argc, char* argv[])
     fclose(databaseFile);
 
     Dictionary dictionary = {};
+
+    #ifdef HASH_TABLE_ONLY
     initDictionary(&dictionary, TEST_HASH_TABLE_SIZE, getCrc32Hash);
+    #endif
+    #ifdef CRC32_OPTIMIZED
+    initDictionary(&dictionary, TEST_HASH_TABLE_SIZE, getOPCrc32Hash);
+    #endif
+    
     loadDictionary(&dictionary, buffer, bufferSize);
 
     if (handler.word != nullptr)
@@ -138,6 +138,7 @@ int main(int argc, char* argv[])
             free(docBuffer);
             return -1;
         }
+
 
         defineDoc(&dictionary, docBuffer, outputFile);
         

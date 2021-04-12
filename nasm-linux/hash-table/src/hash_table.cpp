@@ -16,7 +16,7 @@ void construct(HashTable* hashTable, size_t size,
     {
         if (construct(hashTable->buckets + i) == nullptr)
         {
-            assert(!"bucket construct failed"); // TODO: 
+            assert(!"bucket construct failed");
         }
     }
 
@@ -50,7 +50,7 @@ __m256i strToYMM(const char* string)
 {
     assert(string);
 
-    char buffer[sizeof(__m256i)] = "";
+    static char buffer[sizeof(__m256i)] = "";
     strcpy(buffer, string);
     
     return _mm256_loadu_si256((const __m256i_u*) buffer);

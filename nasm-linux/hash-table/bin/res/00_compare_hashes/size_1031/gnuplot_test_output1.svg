@@ -131,7 +131,7 @@
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(4425.97,193.01)" stroke="none" fill="black" font-family="Arial" font-size="40.00"  text-anchor="middle">
-		<text><tspan font-family="Arial" >Standard deviation = 174.445</tspan></text>
+		<text><tspan font-family="Arial" >Standard deviation = 177.869</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -139,9 +139,9 @@
 	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(100, 149, 237)' points = '257.38,1924.40 266.20,1924.40 266.20,333.91 257.38,333.91 '/>
+		<polygon fill = 'rgb(100, 149, 237)' points = '257.38,1924.40 266.20,1924.40 266.20,302.69 257.38,302.69 '/>
 	</g>
-	<path stroke='black'  d='M257.38,1924.40 L257.38,333.92 L266.19,333.92 L266.19,1924.40 L257.38,1924.40 Z  '/></g>
+	<path stroke='black'  d='M257.38,1924.40 L257.38,302.70 L266.19,302.70 L266.19,1924.40 L257.38,1924.40 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 	</g>

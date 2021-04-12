@@ -1,33 +1,48 @@
 MAIN_LEVEL=1
 
-# # ================================ Failed #1 ================================
-# make -f 02_makefile_failed1
-# echo "====Tests failed_1===="
-
-# cd bin 
-# valgrind --tool=callgrind --callgrind-out-file=callgrind.out.failed1 ./02_failed1.out -d res/potter.txt -o res/potter.html
-# for value in {1..3}
-# do
-#     ./02_failed1.out -d res/potter.txt -o res/potter.html
-# done
-# cd ..
-# # ================================ Failed #1 ================================
-
-# # ================================ Failed #2 ================================
-# make -f 02_makefile_failed2
-# echo "====Tests failed_2===="
-
-# cd bin 
-# valgrind --tool=callgrind --callgrind-out-file=callgrind.out.failed2 ./02_failed2.out -d res/potter.txt -o res/potter.html
-# for value in {1..3}
-# do
-#     ./02_failed2.out -d res/potter.txt -o res/potter.html
-# done
-# cd ..
-# # ================================ Failed #2 ================================
-
 OUTPUT_OPTIMIZATION=res/02_optimize/optimization_tests.txt
 echo "" > bin/$OUTPUT_OPTIMIZATION
+
+# ================================ Failed #1 ================================
+# make -f 02_makefile_optimized OptimizationLevel=-O$MAIN_LEVEL OptimizationVersion=HASH_TABLE_ONLY Optimize=0
+# cd bin
+# valgrind --tool=callgrind --callgrind-out-file=callgrind.out.failed1 ./02_failed1.out -d res/potter.txt -o res/potter.html
+# cd ..
+
+# for level in {0..3}
+# do
+#     echo "====Tests failed_1 -O$level====" >> bin/$OUTPUT_OPTIMIZATION
+#     make -f 02_makefile_failed1 OptimizationLevel=-O$level OptimizationVersion=HASH_TABLE_ONLY Optimize=0 >> bin/$OUTPUT_OPTIMIZATION
+#     echo "" >> bin/$OUTPUT_OPTIMIZATION
+
+#     cd bin 
+#     for value in {1..3}
+#     do
+#         ./02_failed1.out -d res/potter.txt -o res/potter.html >> $OUTPUT_OPTIMIZATION
+#     done
+#     cd ..
+#     echo "" >> bin/$OUTPUT_OPTIMIZATION
+# done
+# ================================ Failed #1 ================================
+
+echo "" >> bin/$OUTPUT_OPTIMIZATION
+echo "" >> bin/$OUTPUT_OPTIMIZATION
+
+# ================================ Failed #2 ================================
+echo "====Tests failed_2====" >> bin/$OUTPUT_OPTIMIZATION
+make -f 02_makefile_failed2
+
+# cd bin 
+# # valgrind --tool=callgrind --callgrind-out-file=callgrind.out.failed2 ./02_failed2.out -d res/potter.txt -o res/potter.html >> $OUTPUT_OPTIMIZATION
+# for value in {1..3}
+# do
+#     ./02_failed2.out -d res/potter.txt -o res/potter.html >> $OUTPUT_OPTIMIZATION
+# done
+# cd ..
+# ================================ Failed #2 ================================
+
+echo "" >> bin/$OUTPUT_OPTIMIZATION
+echo "" >> bin/$OUTPUT_OPTIMIZATION
 
 # ================================ Hash table only ================================
 # echo "====Callgrind hash table only -O$MAIN_LEVEL===="
@@ -38,22 +53,23 @@ echo "" > bin/$OUTPUT_OPTIMIZATION
 # cd ..
 # echo ""
 
-for level in 3
-do
-    echo "====Tests hash table only -O$level====" >> bin/$OUTPUT_OPTIMIZATION
-    make -f 02_makefile_optimized OptimizationLevel=-O$level OptimizationVersion=HASH_TABLE_ONLY >> bin/$OUTPUT_OPTIMIZATION
-    echo "" >> bin/$OUTPUT_OPTIMIZATION
+# for level in {0..3}
+# do
+#     echo "====Tests hash table only -O$level====" >> bin/$OUTPUT_OPTIMIZATION
+#     make -f 02_makefile_optimized OptimizationLevel=-O$level OptimizationVersion=HASH_TABLE_ONLY >> bin/$OUTPUT_OPTIMIZATION
+#     echo "" >> bin/$OUTPUT_OPTIMIZATION
 
-    cd bin 
-    for value in {1..3}
-    do
-        ./02_optimized.out >> $OUTPUT_OPTIMIZATION
-    done
-    cd ..
-    echo "" >> bin/$OUTPUT_OPTIMIZATION
-done
+#     cd bin 
+#     for value in {1..3}
+#     do
+#         ./02_optimized.out >> $OUTPUT_OPTIMIZATION
+#     done
+#     cd ..
+#     echo "" >> bin/$OUTPUT_OPTIMIZATION
+# done
 # ================================ Hash table only ================================
 
+echo "" >> bin/$OUTPUT_OPTIMIZATION
 echo "" >> bin/$OUTPUT_OPTIMIZATION
 
 # ================================ CRC32 optimized ================================
@@ -65,22 +81,23 @@ echo "" >> bin/$OUTPUT_OPTIMIZATION
 # cd ..
 # echo ""
 
-for level in 3
-do
-    echo "====Tests crc32 optimized -O$level====" >> bin/$OUTPUT_OPTIMIZATION
-    make -f 02_makefile_optimized OptimizationLevel=-O$level OptimizationVersion=CRC32_OPTIMIZED >> bin/$OUTPUT_OPTIMIZATION
-    echo "" >> bin/$OUTPUT_OPTIMIZATION
+# for level in {0..3}
+# do
+#     echo "====Tests crc32 optimized -O$level====" >> bin/$OUTPUT_OPTIMIZATION
+#     make -f 02_makefile_optimized OptimizationLevel=-O$level OptimizationVersion=CRC32_OPTIMIZED >> bin/$OUTPUT_OPTIMIZATION
+#     echo "" >> bin/$OUTPUT_OPTIMIZATION
 
-    cd bin 
-    for value in {1..3}
-    do
-        ./02_optimized.out >> $OUTPUT_OPTIMIZATION
-    done
-    cd ..
-    echo "" >> bin/$OUTPUT_OPTIMIZATION
-done
+#     cd bin 
+#     for value in {1..3}
+#     do
+#         ./02_optimized.out >> $OUTPUT_OPTIMIZATION
+#     done
+#     cd ..
+#     echo "" >> bin/$OUTPUT_OPTIMIZATION
+# done
 # ================================ CRC32 optimized ================================
 
+echo "" >> bin/$OUTPUT_OPTIMIZATION
 echo "" >> bin/$OUTPUT_OPTIMIZATION
 
 # ================================ CRC32 + find optimized ================================
@@ -109,6 +126,7 @@ done
 # ================================ CRC32 + find optimized ================================
 
 echo "" >> bin/$OUTPUT_OPTIMIZATION
+echo "" >> bin/$OUTPUT_OPTIMIZATION
 
 # ================================ CRC32 + AVX optimized ================================
 # echo "====Callgrind crc32 + avx2 optimized -O$MAIN_LEVEL===="
@@ -119,22 +137,23 @@ echo "" >> bin/$OUTPUT_OPTIMIZATION
 # cd ..
 # echo ""
 
-for level in 3
-do
-    echo "====Tests crc32 + avx2 optimized -O$level====" >> bin/$OUTPUT_OPTIMIZATION
-    make -f 02_makefile_optimized OptimizationLevel=-O$level OptimizationVersion=CRC32_OPTIMIZED OptimizeAVX=1 >> bin/$OUTPUT_OPTIMIZATION
-    echo "" >> bin/$OUTPUT_OPTIMIZATION
+# for level in {0..3}
+# do
+#     echo "====Tests crc32 + avx2 optimized -O$level====" >> bin/$OUTPUT_OPTIMIZATION
+#     make -f 02_makefile_optimized OptimizationLevel=-O$level OptimizationVersion=CRC32_OPTIMIZED OptimizeAVX=1 >> bin/$OUTPUT_OPTIMIZATION
+#     echo "" >> bin/$OUTPUT_OPTIMIZATION
 
-    cd bin 
-    for value in {1..3}
-    do
-        ./02_optimized.out >> $OUTPUT_OPTIMIZATION
-    done
-    cd ..
-    echo "" >> bin/$OUTPUT_OPTIMIZATION
-done
+#     cd bin 
+#     for value in {1..3}
+#     do
+#         ./02_optimized.out >> $OUTPUT_OPTIMIZATION
+#     done
+#     cd ..
+#     echo "" >> bin/$OUTPUT_OPTIMIZATION
+# done
 # ================================ CRC32 + AVX optimized ================================
 
+echo "" >> bin/$OUTPUT_OPTIMIZATION
 echo "" >> bin/$OUTPUT_OPTIMIZATION
 
 # ================================ CRC32 + find + AVX optimized ================================
@@ -161,3 +180,20 @@ do
     echo "" >> bin/$OUTPUT_OPTIMIZATION
 done
 # ================================ CRC32 + find + AVX optimized ================================
+
+# ================================ Failed #1 optimized ================================
+for level in {0..3}
+do
+    echo "====Tests failed_1 optimized -O$level====" >> bin/$OUTPUT_OPTIMIZATION
+    make -f 02_makefile_failed1 OptimizationLevel=-O$level OptimizationVersion=CRC32_OPTIMIZED Optimize=1 >> bin/$OUTPUT_OPTIMIZATION
+    echo "" >> bin/$OUTPUT_OPTIMIZATION
+
+    cd bin 
+    for value in {1..3}
+    do
+        ./02_failed1.out -d res/potter.txt -o res/potter.html >> $OUTPUT_OPTIMIZATION
+    done
+    cd ..
+    echo "" >> bin/$OUTPUT_OPTIMIZATION
+done
+# ================================ Failed #1 optimized ================================

@@ -4,7 +4,7 @@ LittleWarnings =
 NoWarnings     = 
 
 Linker   = 
-Compiler = -DDEBUG -O1 $(NoWarnings)
+Compiler = -DDEBUG -DNDEBUG -O1 $(NoWarnings)
 
 SrcDir = src
 BinDir = bin
@@ -13,7 +13,7 @@ LibDir = libs
 VerDir = 02_optimize/failed_2
 
 Libs = $(wildcard $(LibDir)/*.a)
-Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h)
+Deps = $(wildcard $(SrcDir)/*.h) $(wildcard $(LibDir)/*.h) .FORCE
 Objs = $(IntDir)/$(VerDir)/main_harry_potter.o $(IntDir)/$(VerDir)/html_writer.o $(IntDir)/file_loader.o $(IntDir)/dictionary.o $(IntDir)/hash_table.o $(IntDir)/bucket.o $(IntDir)/hash_functions.o
 Exec = 02_failed2.out
 
@@ -40,3 +40,5 @@ $(IntDir)/bucket.o: $(SrcDir)/bucket.cpp $(Deps)
 
 $(IntDir)/hash_functions.o: $(SrcDir)/hash_functions.cpp $(Deps)
 	g++ -o $(IntDir)/hash_functions.o -c $(SrcDir)/hash_functions.cpp $(Compiler)
+
+.FORCE:

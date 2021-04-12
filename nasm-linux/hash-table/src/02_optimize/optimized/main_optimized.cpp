@@ -5,8 +5,8 @@
 
 const size_t WORDS_COUNT      = 466471; 
 const size_t HASH_TABLE_SIZE  = 491039; // 466,472 / 0.95 = 491,023 or 491039 (the nearest prime) 
-const size_t INSERTIONS_COUNT = 2;
-const size_t SEARCHES_COUNT   = 60; 
+const size_t INSERTIONS_COUNT = 1;
+const size_t SEARCHES_COUNT   = 1; 
 
 const char** readWords      (char** buffer);
 void         testInsertions (HashTable* hashTable, const char** words); 
@@ -16,9 +16,6 @@ int main()
 {
     timespec startTime = {};
     clock_gettime(CLOCK_MONOTONIC, &startTime);
-
-    // printf("sizeof(Bucket) = %d\n", sizeof(Bucket));
-    // printf("sizeof(Pair)   = %d\n", sizeof(Pair));
 
     char*        buffer = nullptr;
     const char** words  = readWords(&buffer);
@@ -33,18 +30,6 @@ int main()
     #ifdef CRC32_OPTIMIZED
     construct(&hashTable, HASH_TABLE_SIZE, strcmp, getOPCrc32Hash); 
     #endif
-
-    // Definition definition   = {};
-    // definition.partOfSpeech = NOUN;
-    // definition.text         = "Male genitalia";
-
-    // DictEntry entry = {};
-    // entry.word = "Penis";
-    // entry.definitionsCount = 1;
-    // entry.definitions = &definition;
-    // insert(&hashTable, "Penis", entry);
-
-    // find(&hashTable, "Penis");
 
     for (uint32_t i = 0; i < INSERTIONS_COUNT; i++)
     {

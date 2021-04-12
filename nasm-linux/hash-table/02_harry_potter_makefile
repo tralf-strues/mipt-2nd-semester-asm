@@ -4,7 +4,7 @@ LittleWarnings =
 NoWarnings     = 
 
 Linker   = 
-Compiler = -g -O1 $(AllWarnings)
+Compiler = -O1 $(AllWarnings)
 
 SrcDir = src
 BinDir = bin

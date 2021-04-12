@@ -151,7 +151,7 @@
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(4421.77,193.01)" stroke="none" fill="black" font-family="Arial" font-size="40.00"  text-anchor="middle">
-		<text><tspan font-family="Arial" >Standard deviation = 15.3466</tspan></text>
+		<text><tspan font-family="Arial" >Standard deviation = 15.7289</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -164,9 +164,9 @@
 	<path stroke='black'  d='M262.04,1924.40 L262.04,1921.56 L279.74,1921.56 L279.74,1924.40 L262.04,1924.40 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(100, 149, 237)' points = '297.44,1924.40 315.16,1924.40 315.16,160.03 297.44,160.03 '/>
+		<polygon fill = 'rgb(100, 149, 237)' points = '297.44,1924.40 315.16,1924.40 315.16,125.35 297.44,125.35 '/>
 	</g>
-	<path stroke='black'  d='M297.44,1924.40 L297.44,160.04 L315.15,160.04 L315.15,1924.40 L297.44,1924.40 Z  '/></g>
+	<path stroke='black'  d='M297.44,1924.40 L297.44,125.36 L315.15,125.36 L315.15,1924.40 L297.44,1924.40 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 	</g>

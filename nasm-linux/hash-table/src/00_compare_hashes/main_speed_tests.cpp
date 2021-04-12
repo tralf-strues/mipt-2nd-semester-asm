@@ -31,12 +31,12 @@ void testHashFunction(uint32_t (*getHash)(const char* string), const char* hashN
 
 int main()
 {
-    // testHashFunction(getConstantHash,       "constant hash");
-    // testHashFunction(getStrLenHash,         "strlen hash");
-    // testHashFunction(getFirstCharHash,      "first char hash");
-    // testHashFunction(getSumCharsHash,       "sum chars hash");
-    // testHashFunction(getXorRightRotateHash, "xor right rotate hash");
-    // testHashFunction(getXorLeftRotateHash,  "xor left rotate hash");
+    testHashFunction(getConstantHash,       "constant hash");
+    testHashFunction(getStrLenHash,         "strlen hash");
+    testHashFunction(getFirstCharHash,      "first char hash");
+    testHashFunction(getSumCharsHash,       "sum chars hash");
+    testHashFunction(getXorRightRotateHash, "xor right rotate hash");
+    testHashFunction(getXorLeftRotateHash,  "xor left rotate hash");
     testHashFunction(getMurmur3Hash,        "murmur3 hash");
     testHashFunction(getCrc32Hash,          "crc32 hash");
     testHashFunction(getOPCrc32Hash,        "optimized crc32 hash");

@@ -12,7 +12,6 @@
 #          no element with key in hashTable.
 # ------------------------------------------------------------------------------
 _Z4findPK9HashTablePKc:
-                push r12 # FIXME: unneeded
                 push rbx 
 
                 mov rbx, rdi                    # rbx = hashTable
@@ -37,23 +36,22 @@ _Z4findPK9HashTablePKc:
                 lea rcx, [8 * rcx]           
                 lea rcx, [rbx + 8 * rcx]     
 
-                # ymm1 = strToYMM(key) 
-                # mov	QWORD PTR [rsp + 16], 0
-	            # mov	QWORD PTR [rsp + 24], 0
-	            # mov	QWORD PTR [rsp + 32], 0
-	            # mov	QWORD PTR [rsp + 40], 0
+                lea	rdi, [TEMP_BUFFER]
+                # zeroing buffer:
+                mov QWORD PTR [rdi],       0
+                mov QWORD PTR [rdi + 64],  0
+                mov QWORD PTR [rdi + 128], 0
+                mov QWORD PTR [rdi + 192], 0
 
-                # lea rdi, [rsp + 16]
+                push rcx
+                call strcpy # changes rax, rcx, rdx, rbx, rdi 
+                pop rcx
+                vmovdqu	ymm0, YMMWORD PTR TEMP_BUFFER
 
-                # push rbx 
-                # push rcx 
-                # call strcpy # changes rax, rbx, rcx
-                # pop rcx 
-                # pop rbx
-
-                # vmovdqu ymm1, YMMWORD PTR [rdi] # rdi = rsp + 16
-
-                call _Z8strToYMMPKc # ymm0 = strToYMM(key)
+                # mov rdi, rsi
+                # push rcx                 
+                # call _Z8strToYMMPKc             # ymm0 = strToYMM(key)
+                # pop rcx
 
 .LOOP_FIND_PAIR:
                 cmp rbx, rcx 
@@ -70,15 +68,13 @@ _Z4findPK9HashTablePKc:
                 jmp .LOOP_FIND_PAIR
 .FOUND_PAIR:
                 lea rax, [rbx + 32]
-                # lea	rsp, [r12 - 16] # FIXME:
                 pop rbx
-                pop r12
                 ret
 .NOT_FOUND_PAIR:
                 xor rax, rax
-                # lea	rsp, [r12 - 16] # FIXME:
                 pop rbx
-                pop r12
                 ret
+
+.comm	TEMP_BUFFER, 32, 32
 
     

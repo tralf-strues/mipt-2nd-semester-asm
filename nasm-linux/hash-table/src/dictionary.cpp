@@ -143,11 +143,23 @@ char* parseWord(Parser* parser)
     char* word = parser->pos;
     word[0] = tolower(word[0]); // to make the first letter lower case
     
-    char* wordEnd = strchr(word, ','); // FIXME: magic number
-    assert(wordEnd);
+    size_t firstComma       = strcspn(word, ",\n");
+    size_t firstOpenBracket = strcspn(word, "(\n");
 
-    *wordEnd = '\0'; // put 0 due to null string termination
-    parser->pos = wordEnd + 1;
+    char* wordEnd = word;
+
+    if (firstComma < firstOpenBracket)
+    {
+        wordEnd += firstComma;
+        *wordEnd = '\0'; // put 0 due to null string termination
+        parser->pos = wordEnd + 1;
+    }
+    else 
+    {
+        wordEnd += firstOpenBracket - 1;
+        *wordEnd = '\0'; // put 0 due to null string termination
+        parser->pos = wordEnd + 2;
+    }
 
     return word;
 }
@@ -174,8 +186,12 @@ void parsePartOfSpeech(Parser* parser, Definition* definition)
     assert(definition);
 
     char* partOfSpeechStart = parser->pos;  
-    char* partOfSpeechEnd   = strchr(partOfSpeechStart, ',');
-    assert(partOfSpeechEnd);
+
+    
+    size_t firstComma       = strcspn(partOfSpeechStart, ",\n");
+    size_t firstOpenBracket = strcspn(partOfSpeechStart, "(\n");
+
+    char* partOfSpeechEnd = partOfSpeechStart + (firstComma < firstOpenBracket ? firstComma : firstOpenBracket);
 
     *partOfSpeechEnd = '\0'; // put 0 for strstr not to search after ','    
     definition->partOfSpeech = UNSPECIFIED;

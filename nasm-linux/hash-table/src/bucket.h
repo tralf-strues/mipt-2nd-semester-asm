@@ -33,7 +33,7 @@ struct Pair
     ht_value_t value;
 };
 
-const size_t BUCKET_DEFAULT_CAPACITY  = 2;
+const size_t BUCKET_DEFAULT_CAPACITY  = 4;
 const double BUCKET_EXPAND_MULTIPLIER = 1.7;
 
 struct Bucket
