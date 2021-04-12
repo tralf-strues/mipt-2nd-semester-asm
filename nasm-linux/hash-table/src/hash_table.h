@@ -61,12 +61,6 @@ void destroy(HashTable* hashTable);
 //------------------------------------------------------------------------------
 void insert(HashTable* hashTable, ht_key_t key, ht_value_t value);
 
-// TODO:
-void reallocHashTable(HashTable* hashTable);
-
-// TODO:
-void remove(HashTable* hashTable, ht_key_t key);
-
 //------------------------------------------------------------------------------
 //! Finds an element associated with key in hashTable.
 //! 

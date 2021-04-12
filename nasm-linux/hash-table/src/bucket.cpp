@@ -132,11 +132,3 @@ void pushBack(Bucket* bucket, Pair pair)
 
     set(bucket, bucket->size++, pair);
 }
-
-const Pair* popBack(Bucket* bucket)
-{
-    assert(bucket);
-    // TODO: asserts
-
-    return get(bucket, bucket->size--);
-}

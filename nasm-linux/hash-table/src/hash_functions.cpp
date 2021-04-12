@@ -230,32 +230,9 @@ uint32_t getOPCrc32Hash(const char* string)
         ".att_syntax                     \n\t"
 
         :"=a"(hash)
-        :"g"(hash)
+        :
         :"r12", "rdi"
     );
-
-    // __asm__ 
-    // (
-    //     ".intel_syntax noprefix         \n\t"
-    //     "xor %0, %0                     \n\t"
-    //     "xor r12, r12                   \n\t"
-    //     "                               \n\t"
-    //     ".LOOP:                         \n\t"
-    //     "       mov r12b, BYTE PTR [%1] \n\t"
-    //     "       test r12b, r12b         \n\t"
-    //     "       jz .LOOP_END            \n\t"
-    //     "                               \n\t"
-    //     "       crc32 %0, r12b          \n\t"
-    //     "                               \n\t"
-    //     "       inc %1                  \n\t"
-    //     "       jmp .LOOP               \n\t"
-    //     ".LOOP_END:                     \n\t"
-    //     ".att_syntax                    \n\t"
-
-    //     :"=r"(hash)
-    //     :"0"(hash), "r"(string) 
-    //     :"r12"
-    // );
     
     return hash;
 }

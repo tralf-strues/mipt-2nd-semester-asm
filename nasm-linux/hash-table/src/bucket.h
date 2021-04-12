@@ -156,13 +156,3 @@ size_t spaceLeft(const Bucket* bucket);
 //! @param pair
 //------------------------------------------------------------------------------
 void pushBack(Bucket* bucket, Pair pair);
-
-//------------------------------------------------------------------------------
-//! Returns the last pair in bucket
-//! 
-//! @param bucket
-//! 
-//! @return Constant pointer to the last pair in bucket, or nullptr if an
-//!         error occurres or bucket is empty.
-//------------------------------------------------------------------------------
-const Pair* popBack (Bucket* bucket);

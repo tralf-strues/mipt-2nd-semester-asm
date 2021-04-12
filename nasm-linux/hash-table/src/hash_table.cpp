@@ -74,7 +74,6 @@ void insert(HashTable* hashTable, ht_key_t key, ht_value_t value)
     // Checks whether the value is already in bucket
     for (uint32_t i = 0; i < bucket->size; i++)
     {
-        // __m256i bucketElemString = _mm256_loadu_si256((const __m256i_u*) &(bucket->data[i].key));
         __m256i bucketElemString = bucket->data[i].key;
         __m256i cmpResult        = _mm256_cmpeq_epi8(keyString, bucketElemString);
         if (~_mm256_movemask_epi8(cmpResult) == 0)
@@ -101,19 +100,6 @@ void insert(HashTable* hashTable, ht_key_t key, ht_value_t value)
 #endif
 }
 
-void reallocHashTable(HashTable* hashTable)
-{
-    assert(hashTable);
-    // TODO:
-}
-
-void remove(HashTable* hashTable, ht_key_t key)
-{
-    assert(hashTable);
-    assert(hashTable->buckets);
-    // TODO:
-}
-
 #ifndef OPTIMIZED_FIND
 const ht_value_t* find(const HashTable* hashTable, ht_key_t key)
 {
@@ -131,7 +117,6 @@ const ht_value_t* find(const HashTable* hashTable, ht_key_t key)
     // Checks whether the value is already in bucket
     for (uint32_t i = 0; i < bucket->size; i++)
     {
-        // __m256i bucketElemString = _mm256_loadu_si256((const __m256i_u*) &(bucket->data[i].key));
         __m256i bucketElemString = bucket->data[i].key;
         __m256i cmpResult        = _mm256_cmpeq_epi8(keyString, bucketElemString);
         if (~_mm256_movemask_epi8(cmpResult) == 0)

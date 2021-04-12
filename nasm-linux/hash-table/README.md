@@ -778,4 +778,12 @@ Just out of curiosity, I checked performance of the first program with and witho
 Version                       |  -O0  |  -O1  |  -O2  |  -O3  
 ------------------------------|-------|-------|-------|-------
 Not optimized                 |2.85   |2.79   |2.75   |2.74       
-CRC32 + find + AVX2 optimized |2.43 (**17%**)   |2.40 (16%)   |2.32 (18%)   |2.27 (**21%**) 
+CRC32 + find + AVX2 optimized |2.43 (17%)   |2.40 (16%)   |2.32 (18%)   |2.27 (21%) 
+
+# Conclusion
+So at the end, I have managed to boost performance of Hash Table by **107%** (with -O0) and **49%** (with -O3)! 
+
+The ded32 coefficient 😸 is 
+
+boost_coefficient / #asm_lines * 1000 = 2.07 / 50 * 1000 = **41.4** (-O0)  
+boost_coefficient / #asm_lines * 1000 = 1.49 / 50 * 1000 = **29.8** (-O3)  
