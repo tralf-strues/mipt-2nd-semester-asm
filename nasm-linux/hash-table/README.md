@@ -1,4 +1,4 @@
-# Purpose
+# Hash Table Optimization (Purpose)
 This project comprises of three different parts:
 1. Comparing several hash functions in a dictionary-based application in terms of value distribution. 
 2. Writing a terminal application that can print a definition to a single word or convert a .txt file into an html page with the same text, but where definition pops up on mouse hover of each word.
