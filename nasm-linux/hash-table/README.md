@@ -6,44 +6,45 @@ This project comprises of three different parts:
 
 # Contents
 1. **[Comparing hash functions](#comparing-hash-functions)**
-  - [1. Constant](#1-constant)
-  - [2. String length](#2-string-length)
-  - [3. First character](#3-first-character)
-  - [4. Characters sum](#4-characters-sum)
-  - [5. Xor and right rotate](#5-xor-and-right-rotate)
-  - [6. Xor and left rotate](#6-xor-and-left-rotate)
-  - [7. Murmur3](#7-murmur3-smirk_cat)
-  - [8. CRC32](#8-crc32)
-  - [Standard deviations](#standard-deviations)
-  - [Execution time tests](#execution-time-tests)
-    - [Result for -O0](#result-for--o0-nanoseconds)
-    - [Result for -O3](#result-for--o3-nanoseconds)
-  - [Conclusion]()
+     - [1. Constant](#1-constant)
+     - [2. String length](#2-string-length)
+     - [3. First character](#3-first-character)
+     - [4. Characters sum](#4-characters-sum)
+     - [5. Xor and right rotate](#5-xor-and-right-rotate)
+     - [6. Xor and left rotate](#6-xor-and-left-rotate)
+     - [7. Murmur3](#7-murmur3-smirk_cat)
+     - [8. CRC32](#8-crc32)
+     - [Standard deviations](#standard-deviations)
+     - [Execution time tests](#execution-time-tests)
+       - [Result for -O0](#result-for--o0-nanoseconds)
+       - [Result for -O3](#result-for--o3-nanoseconds)
+     - [Conclusion on the optimal hash function](#conclusion-on-the-optimal-hash-function)
 2. **[Application](#application)**
-  - [Chosen algorithm and HashTable size](#chosen-algorithm-and-hashtable-size)
-    - [Load factor = 0.75](#load-factor--075)
-    - [Load factor = 0.95](#load-factor--095)
-  - [Functionality](#functionality)
-    - [Giving definition to a single word](#giving-definition-to-a-single-word)
-    - [Creating an html page from a txt document](#creating-an-html-page-from-a-txt-document)
+     - [Chosen algorithm and HashTable size](#chosen-algorithm-and-hashtable-size)
+       - [Load factor = 0.75](#load-factor--075)
+       - [Load factor = 0.95](#load-factor--095)
+     - [Functionality](#functionality)
+       - [Giving definition to a single word](#giving-definition-to-a-single-word)
+       - [Creating an html page from a txt document](#creating-an-html-page-from-a-txt-document)
 3. **[Optimization](#optimization)**
-  - [Choosing testing strategy](#choosing-testing-strategy)
-    - [Failed attempt #1](#failed-attempt-1)
-    - [Failed attempt #2](#failed-attempt-2)
-    - [Final testing program](#final-testing-program)
-  - [Hash function optimization](#hash-function-optimization)
-    - [CRC32 instruction](#crc32-instruction)
-    - [Performance boost of CRC32](#performance-boost-of-crc32)
-    - [Functions time distribution with CRC32](#functions-time-distribution-with-crc32)
-  - [Optimizing HashTable's find() function](#optimizing-hashtables-find-function)
-    - [Find replacement](#find-replacement)
-    - [Performance boost of find()](#performance-boost-of-find)
-    - [Functions time distribution with find()](#functions-time-distribution-with-find)
-  - [Using YMM registers to store strings](#using-ymm-registers-to-store-strings)
-    - [With original find()](#with-original-find)
-    - [CRC32 + find() + AVX2](#crc32--find--avx2)
-  - [Final comparison](#final-comparison)
-  - [Comparing performance with failed #1](#comparing-performance-with-failed-1)
+     - [Choosing testing strategy](#choosing-testing-strategy)
+       - [Failed attempt #1](#failed-attempt-1)
+       - [Failed attempt #2](#failed-attempt-2)
+       - [Final testing program](#final-testing-program)
+     - [Hash function optimization](#hash-function-optimization)
+       - [CRC32 instruction](#crc32-instruction)
+       - [Performance boost of CRC32](#performance-boost-of-crc32)
+       - [Functions time distribution with CRC32](#functions-time-distribution-with-crc32)
+     - [Optimizing HashTable's find() function](#optimizing-hashtables-find-function)
+       - [Find replacement](#find-replacement)
+       - [Performance boost of find()](#performance-boost-of-find)
+       - [Functions time distribution with find()](#functions-time-distribution-with-find)
+     - [Using YMM registers to store strings](#using-ymm-registers-to-store-strings)
+       - [With original find()](#with-original-find)
+       - [CRC32 + find() + AVX2](#crc32--find--avx2)
+     - [Final comparison](#final-comparison)
+     - [Comparing performance with failed #1](#comparing-performance-with-failed-1)
+     - [Conclusion](#conclusion)
 
 # 1. Comparing hash functions
 A shortened dictionary database has been used with the total number of words equal to 5608. For higher objectiveness 5 hash table sizes have been considered (521, 1031, 2053, 4099, 8209). The hash functions being compared are the following:
@@ -187,7 +188,6 @@ Each hash function has been tested 10^9 times on the same strings of size 3, 5, 
 5. "*Evil is evil. Lesser, greater, middling, it's all the same. Proportions are negotiated, boundaries blurred. I'm not a pious hermit. I haven't done only good in my life. But if I'm to choose between one evil and another, then I prefer not to choose at all.*" (sentence)
 
 Entire log of the tests is located in [speed_comparison.txt](https://github.com/tralf-strues/mipt-2nd-semester-asm/tree/main/nasm-linux/hash-table/bin/res/00_compare_hashes/speed_comparison.txt):
-FIXME:
 ```
 ====Testing speed of hash functions -O0====
 g++ -o bin/intermediates/00_compare_hashes/main_speed_tests.o -c src/00_compare_hashes/main_speed_tests.cpp -O0 -DNDEBUG -w
@@ -276,7 +276,7 @@ CRC32 optimized     |2.62   |3.74   |5.97   |8.32   |166.02
 
 >CRC32 optimized is discussed later. 
 
-## Conclusion
+## Conclusion on the optimal hash function
 Clearly, the winners seem to be Murmur3 and CRC32 for they have the best distribution results and execution times. And even though Murmur3 shows itself best for longer strings (due to it performing operations on four bytes at a time), on shorter ones it sometimes runs even slower than CRC32.
 
 # 2. Application
