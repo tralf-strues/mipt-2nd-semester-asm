@@ -1,11 +1,11 @@
-# Purpose
+# Hash Table Optimization (Purpose)
 This project comprises of three different parts:
 1. Comparing several hash functions in a dictionary-based application in terms of value distribution. 
 2. Writing a terminal application that can print a definition to a single word or convert a .txt file into an html page with the same text, but where definition pops up on mouse hover of each word.
 3. Analyzing the performance of this application and optimizing it with the use of assembly.  
 
 # Contents
-- **[Comparing hash functions](#comparing-hash-functions)**
+1. **[Comparing hash functions](#comparing-hash-functions)**
   - [1. Constant](#1-constant)
   - [2. String length](#2-string-length)
   - [3. First character](#3-first-character)
@@ -19,14 +19,14 @@ This project comprises of three different parts:
     - [Result for -O0](#result-for--o0-nanoseconds)
     - [Result for -O3](#result-for--o3-nanoseconds)
   - [Conclusion]()
-- **[Application](#application)**
+2. **[Application](#application)**
   - [Chosen algorithm and HashTable size](#chosen-algorithm-and-hashtable-size)
     - [Load factor = 0.75](#load-factor--075)
     - [Load factor = 0.95](#load-factor--095)
   - [Functionality](#functionality)
     - [Giving definition to a single word](#giving-definition-to-a-single-word)
     - [Creating an html page from a txt document](#creating-an-html-page-from-a-txt-document)
-- **[Optimization](#optimization)**
+3. **[Optimization](#optimization)**
   - [Choosing testing strategy](#choosing-testing-strategy)
     - [Failed attempt #1](#failed-attempt-1)
     - [Failed attempt #2](#failed-attempt-2)
@@ -45,7 +45,7 @@ This project comprises of three different parts:
   - [Final comparison](#final-comparison)
   - [Comparing performance with failed #1](#comparing-performance-with-failed-1)
 
-# Comparing hash functions
+# 1. Comparing hash functions
 A shortened dictionary database has been used with the total number of words equal to 5608. For higher objectiveness 5 hash table sizes have been considered (521, 1031, 2053, 4099, 8209). The hash functions being compared are the following:
 
 ## 1. Constant 
@@ -279,7 +279,7 @@ CRC32 optimized     |2.62   |3.74   |5.97   |8.32   |166.02
 ## Conclusion
 Clearly, the winners seem to be Murmur3 and CRC32 for they have the best distribution results and execution times. And even though Murmur3 shows itself best for longer strings (due to it performing operations on four bytes at a time), on shorter ones it sometimes runs even slower than CRC32.
 
-# Application
+# 2. Application
 ## Chosen algorithm and HashTable size 
 The full dictionary contains 121199 words. Below are the tests for [load factors](https://en.wikipedia.org/wiki/Hash_table#Key_statistics) equal to 0.75 and 0.95.
 
@@ -337,7 +337,7 @@ $ ./define.out --doc hobbit_chapter1.txt -o hobbit_chapter1.html
 
 The word hovered on is 'door'.
 
-# Optimization
+# 3. Optimization
 First it is important to choose the way we test performance of the hash table.
 
 ## Choosing testing strategy
