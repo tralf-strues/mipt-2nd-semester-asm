@@ -28,7 +28,6 @@ _Z4findPK9HashTablePKc:
                 lea rdx, [rdx + 2 * rdx]     
                 lea rdx, [rax + 8 * rdx]        # &(buckets[hash])
                 
-                # mov r12, QWORD PTR [rbx + 16] # r12 = cmp
                 mov rbx, QWORD PTR [rdx]        # rbx = buckets[hash].data
                 mov rcx, QWORD PTR [rdx + 8]    # rcx = buckets[hash].size
                 
@@ -36,22 +35,10 @@ _Z4findPK9HashTablePKc:
                 lea rcx, [8 * rcx]           
                 lea rcx, [rbx + 8 * rcx]     
 
-                lea	rdi, [TEMP_BUFFER]
-                # zeroing buffer:
-                mov QWORD PTR [rdi],       0
-                mov QWORD PTR [rdi + 64],  0
-                mov QWORD PTR [rdi + 128], 0
-                mov QWORD PTR [rdi + 192], 0
-
-                push rcx
-                call strcpy # changes rax, rcx, rdx, rbx, rdi 
+                mov rdi, rsi
+                push rcx                 
+                call _Z8strToYMMPKc             # ymm0 = strToYMM(key)
                 pop rcx
-                vmovdqu	ymm0, YMMWORD PTR TEMP_BUFFER
-
-                # mov rdi, rsi
-                # push rcx                 
-                # call _Z8strToYMMPKc             # ymm0 = strToYMM(key)
-                # pop rcx
 
 .LOOP_FIND_PAIR:
                 cmp rbx, rcx 
@@ -74,7 +61,5 @@ _Z4findPK9HashTablePKc:
                 xor rax, rax
                 pop rbx
                 ret
-
-.comm	TEMP_BUFFER, 32, 32
 
     

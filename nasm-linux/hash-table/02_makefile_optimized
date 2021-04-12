@@ -28,8 +28,8 @@ SomeWarnings   = -Wall
 LittleWarnings = 
 NoWarnings     = 
 
-Linker   = $(OptimizationLevel) -no-pie
-Compiler = $(OptimizationLevel) -mavx2 -no-pie -march=native -DNDEBUG -D$(OptimizationVersion) $(OPTIMIZE_FIND_DEFINE) $(OPTIMIZE_AVX_DEFINE) $(NoWarnings)
+Linker   = $(OptimizationLevel)
+Compiler = $(OptimizationLevel) -mavx2 -march=native -DNDEBUG -D$(OptimizationVersion) $(OPTIMIZE_FIND_DEFINE) $(OPTIMIZE_AVX_DEFINE) $(NoWarnings)
 # ================ Constants ================
 
 # ================ Files ================

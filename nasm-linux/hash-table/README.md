@@ -32,6 +32,18 @@ This project comprises of three different parts:
     - [Failed attempt #2](#failed-attempt-2)
     - [Final testing program](#final-testing-program)
   - [Hash function optimization](#hash-function-optimization)
+    - [CRC32 instruction](#crc32-instruction)
+    - [Performance boost of CRC32](#performance-boost-of-crc32)
+    - [Functions time distribution with CRC32](#functions-time-distribution-with-crc32)
+  - [Optimizing HashTable's find() function](#optimizing-hashtables-find-function)
+    - [Find replacement](#find-replacement)
+    - [Performance boost of find()](#performance-boost-of-find)
+    - [Functions time distribution with find()](#functions-time-distribution-with-find)
+  - [Using YMM registers to store strings](#using-ymm-registers-to-store-strings)
+    - [With original find()](#with-original-find)
+    - [CRC32 + find() + AVX2](#crc32--find--avx2)
+  - [Final comparison](#final-comparison)
+  - [Comparing performance with failed #1](#comparing-performance-with-failed-1)
 
 # Comparing hash functions
 A shortened dictionary database has been used with the total number of words equal to 5608. For higher objectiveness 5 hash table sizes have been considered (521, 1031, 2053, 4099, 8209). The hash functions being compared are the following:
@@ -334,7 +346,7 @@ Let's first try to analyze performance of the program on a txt file containing b
 
 Let's look at the profiler
 
-![](bin/res/../../images/callgrind_failed1.png)
+![](bin/res/../../images/callgrind_failed1.png) 
 
 It's clear that the majority of CPU time is taken by I/O functions, which makes the test not objective. 
 
@@ -348,7 +360,7 @@ Let's look at the profiler
 Still there are functions at the top which aren't related to the Hash Table.
 
 ### Final testing program
-In order to minimize the time required by loading and parsing input file, I have found a [file](https://github.com/dwyl/english-words) containing just 466,472 words (with no definitions whatsoever). The test comprises of FIXME:5 insertions of all the words into the hash table and FIXME:150 searches of all of them. Let's look at the profiler
+In order to minimize the time required by loading and parsing input file, I have found a [file](https://github.com/dwyl/english-words) containing just 466,472 words (with no definitions whatsoever). The test comprises of 5 insertions of all the words into the hash table and 200 searches of all of them. Let's look at the profiler
 
 ![](bin/res/../../images/callgrind_hash_table_only.png)
 
@@ -357,7 +369,7 @@ This is much better! Now we can start optimizing the Hash Table.
 ## Hash function optimization
 Clearly the hash function takes most of the time, so it's worth the effort to decrease its execution time.
 
-### Code FIXME:
+### CRC32 instruction
 GCC 
 ```
 g++ -S -DNDEBUG -O1 -masm=intel hash_functions.cpp -o hash_functions.s
@@ -426,30 +438,56 @@ uint32_t getOPCrc32Hash(const char* string)
 }
 ```
 
-### Performance boost
-This has improved overall performance quite significantly even with -O3. File [optimization_tests.txt](bin/res/02_optimize/optimization_tests.txt) contains comparison tests for the two versions and optimization flags -O0 through -O3 (in addition, it has tests of the next optimization). Also note that each version of the program has been tested 3 times to get a more precise average time.
+### Performance boost of CRC32
+This has improved overall performance quite significantly even with -O3. File [optimization_tests.txt](bin/res/02_optimize/optimization_tests.txt) contains comparison tests for the two versions and optimization flags -O0 through -O3 (in addition, it has tests of next optimizations). Also note that each version of the program has been tested 3 times to get a more precise average time.
 ```
 optimization_tests.txt:
 
-TODO:
+...
+
+====Tests hash table only -O3====
+g++ -o bin/intermediates/02_optimize/optimized/main_optimized.o -c src/02_optimize/optimized/main_optimized.cpp -O3 -mavx2 -march=native -DNDEBUG -DHASH_TABLE_ONLY    
+g++ -o bin/intermediates/file_loader.o -c src/file_loader.cpp -O3 -mavx2 -march=native -DNDEBUG -DHASH_TABLE_ONLY   
+g++ -o bin/intermediates/hash_table.o -c src/hash_table.cpp -O3 -mavx2 -march=native -DNDEBUG -DHASH_TABLE_ONLY    
+g++ -o bin/intermediates/bucket.o -c src/bucket.cpp -O3 -mavx2 -march=native -DNDEBUG -DHASH_TABLE_ONLY   
+g++ -o bin/intermediates/hash_functions.o -c src/hash_functions.cpp -O3 -mavx2 -march=native -DNDEBUG -DHASH_TABLE_ONLY    
+g++ -o bin/02_optimized.out -O3  bin/intermediates/02_optimize/optimized/main_optimized.o bin/intermediates/file_loader.o bin/intermediates/hash_table.o bin/intermediates/bucket.o bin/intermediates/hash_functions.o  
+
+Time: 11223.7 ms
+Time: 11095.8 ms
+Time: 11043.5 ms
+
+...
+
+====Tests crc32 optimized -O3====
+g++ -o bin/intermediates/02_optimize/optimized/main_optimized.o -c src/02_optimize/optimized/main_optimized.cpp -O3 -mavx2 -march=native -DNDEBUG -DCRC32_OPTIMIZED    
+g++ -o bin/intermediates/file_loader.o -c src/file_loader.cpp -O3 -mavx2 -march=native -DNDEBUG -DCRC32_OPTIMIZED   
+g++ -o bin/intermediates/hash_table.o -c src/hash_table.cpp -O3 -mavx2 -march=native -DNDEBUG -DCRC32_OPTIMIZED    
+g++ -o bin/intermediates/bucket.o -c src/bucket.cpp -O3 -mavx2 -march=native -DNDEBUG -DCRC32_OPTIMIZED   
+g++ -o bin/intermediates/hash_functions.o -c src/hash_functions.cpp -O3 -mavx2 -march=native -DNDEBUG -DCRC32_OPTIMIZED    
+g++ -o bin/02_optimized.out -O3  bin/intermediates/02_optimize/optimized/main_optimized.o bin/intermediates/file_loader.o bin/intermediates/hash_table.o bin/intermediates/bucket.o bin/intermediates/hash_functions.o  
+
+Time: 9228.9 ms
+Time: 9103.98 ms
+Time: 9090.28 ms
+
+...
 ```
 
 Version         |  -O0  |  -O1  |  -O2  |  -O3  
 ----------------|-------|-------|-------|-------
-Not optimized   |       |       |       |        
-CRC32 optimized |       |       |       |  
+Not optimized   |17.37  |11.21  |11.19  |11.12        
+CRC32 optimized |10.53  |9.30   |9.30   |9.14  
 > Average time is given in seconds.
 
 So we have increased performance by
-FIXME:
-- -O0: 1.2
-- -O1: 1.2
-- -O2: 1.2
-- -O3: 1.2
+- -O0: 65%
+- -O1: 21%
+- -O2: 20%
+- -O3: **22%**
 
-### Functions time distribution
+### Functions time distribution with CRC32
 And now generated program's profile looks like the following:
-FIXME:
 ![](images/callgrind_crc32_optimized.png)
 
 Hash function now has a lesser percentage of the total execution time. 
@@ -457,7 +495,7 @@ Hash function now has a lesser percentage of the total execution time.
 ## Optimizing HashTable's find() function 
 The second most time-cost function is HashTable's find().
 
-### Code FIXME:
+### Find replacement
 GCC
 ```
 g++ -S -DNDEBUG -O1 -masm=intel hash_table.cpp -o hash_table.s
@@ -601,34 +639,143 @@ _Z4findPK9HashTablePKc:
                 ret
 ```
 
-### Performance boost
+### Performance boost of find
 Surprisingly, I managed to outperform even -O3's code again. 
-```
-optimization_tests.txt:
-
-TODO:
-```
 
 Version                  |  -O0  |  -O1  |  -O2  |  -O3  
 -------------------------|-------|-------|-------|-------
-Not optimized            |       |       |       |        
-CRC32 optimized          |       |       |       |  
-CRC32 + find() optimized |       |       |       |  
+Not optimized            |17.37  |11.21  |11.19  |11.12        
+CRC32 + find() optimized |8.80   |8.57   |8.53   |8.45  
 > Average time is given in seconds.
 
-So we have increased performance (compared to the version CRC32 optimized) by
-FIXME:
-- -O0: 1.2
-- -O1: 1.2
-- -O2: 1.2
-- -O3: 1.2
+So we have increased performance (compared to the original version) by
+- -O0: 97%
+- -O1: 31%
+- -O2: 31%
+- -O3: **32%**
   
-### Functions time distribution
+### Functions time distribution with find
 And now program's profile looks like the following:
-FIXME:
-![callgrind_crc32_plus_find_optimized](images/callgrind_crc32_plus_find_optimized.png) 
+![callgrind_crc32_plus_find_optimized](images/callgrind_crc32_find_optimized.png) 
 
 ## Using YMM registers to store strings
 The last function that takes up the majority of computing time is `strcmp()`. Clearly, `strcmp_avx2()` (which you can see on the previous diagrams) is already optimized compared to a straightforward implementation of `strcmp()`. So it seems, there's nothing one can do in this situation... 
 
 But, keeping in mind that we store English words in the hash table, we can benefit from the length of words being comparatively small. Having looked at the dictionary, I found out that there are no words longer or equal to 32 characters. This is why we can simply use YMM registers (introduced with [AVX](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions)) to store words! Comparing words would be much faster this way.
+
+### With original find()
+First, I changed the stored key type of the Hash Table (to `__m256i`) and changed `insert()` and `find()` functions. I should note, that these functions still have `const char*` as the parameter.
+
+Alas, performance only got worse compared to CRC32.
+
+Version                  |  -O0  |  -O1  |  -O2  |  -O3  
+-------------------------|-------|-------|-------|-------
+Not optimized            |17.37  |11.21  |11.19  |11.12        
+CRC32 optimized          |10.53  |9.30   |9.30   |9.14  
+CRC32 + AVX2 optimized   |17.13  |11.07  |10.99  |10.95
+
+![callgrind_crc32_avx2_optimized](images/callgrind_crc32_find_avx_optimized.png) 
+
+### CRC32 + find() + AVX2
+Fortunately, after changing already rewritten `find()`, the performance improved.
+```asm
+.globl _Z4findPK9HashTablePKc
+.type _Z4findPK9HashTablePKc, @function
+.intel_syntax noprefix
+
+# ------------------------------------------------------------------------------
+# Finds an element associated with key in hashTable.
+# 
+# Expects: RDI = constant pointer to a HashTable
+#          RSI = constant pointer to a string (key) 
+# 
+# Returns: RAX = constant pointer to value (DictEntry) or nullptr if there is 
+#          no element with key in hashTable.
+# ------------------------------------------------------------------------------
+_Z4findPK9HashTablePKc:
+                push rbx 
+
+                mov rbx, rdi                    # rbx = hashTable
+                
+                mov rdi, rsi
+                call QWORD PTR [rbx + 24]       # rax = getHash(key)
+
+                xor rdx, rdx
+                div QWORD PTR [rbx]             # rdx = rdx:rax % hashTable->size = hash
+
+                mov rax, QWORD PTR [rbx + 8]    # rax = buckets
+                
+                # sizeof(Bucket) = 24
+                lea rdx, [rdx + 2 * rdx]     
+                lea rdx, [rax + 8 * rdx]        # &(buckets[hash])
+                
+                mov rbx, QWORD PTR [rdx]        # rbx = buckets[hash].data
+                mov rcx, QWORD PTR [rdx + 8]    # rcx = buckets[hash].size
+                
+                # rcx = rbx + 64 * rcx (sizeof(Pair)) = last + 1 bucket
+                lea rcx, [8 * rcx]           
+                lea rcx, [rbx + 8 * rcx]     
+
+                mov rdi, rsi
+                push rcx                 
+                call _Z8strToYMMPKc             # ymm0 = strToYMM(key)
+                pop rcx
+
+.LOOP_FIND_PAIR:
+                cmp rbx, rcx 
+                jae .NOT_FOUND_PAIR
+
+                vpcmpeqb ymm1, ymm0, YMMWORD PTR [rbx] 
+                vpmovmskb eax, ymm1
+
+                cmp eax, -1
+                je .FOUND_PAIR
+
+                add rbx, 64
+                
+                jmp .LOOP_FIND_PAIR
+.FOUND_PAIR:
+                lea rax, [rbx + 32]
+                pop rbx
+                ret
+.NOT_FOUND_PAIR:
+                xor rax, rax
+                pop rbx
+                ret
+```
+
+Version                       |  -O0  |  -O1  |  -O2  |  -O3  
+------------------------------|-------|-------|-------|-------
+Not optimized                 |17.37  |11.21  |11.19  |11.12        
+CRC32 + AVX2 optimized        |17.13  |11.07  |10.99  |10.95 
+CRC32 + find + AVX2 optimized |8.36   |7.72   |7.51   |7.48 
+
+![callgrind_crc32_find_avx_optimized](images/callgrind_crc32_avx_optimized.png)  
+
+## Final comparison
+Here is the overall table of execution time:
+
+Version                       |  -O0  |  -O1  |  -O2  |  -O3  
+------------------------------|-------|-------|-------|-------
+Not optimized                 |17.37  |11.21  |11.19  |11.12  
+CRC32 optimized               |10.53  |9.30   |9.30   |9.14       
+CRC32 + find() optimized      |8.80   |8.57   |8.53   |8.45   
+CRC32 + AVX2 optimized        |17.13  |11.07  |10.99  |10.95 
+CRC32 + find + AVX2 optimized |8.36   |7.72   |7.51   |7.48 
+
+or in percentages based on the original version:
+
+Version                       |  -O0  |  -O1  |  -O2  |  -O3  
+------------------------------|-------|-------|-------|-------
+CRC32 optimized               |65     |21     |20     |22       
+CRC32 + find() optimized      |97     |31     |31     |32   
+CRC32 + AVX2 optimized        |1      |1      |2      |2  
+CRC32 + find + AVX2 optimized |**107**    |45     |49     |**49**
+
+## Comparing performance with failed #1
+Just out of curiosity, I checked performance of the first program with and without optimizations. 
+
+Version                       |  -O0  |  -O1  |  -O2  |  -O3  
+------------------------------|-------|-------|-------|-------
+Not optimized                 |2.85   |2.79   |2.75   |2.74       
+CRC32 + find + AVX2 optimized |2.43 (**17%**)   |2.40 (16%)   |2.32 (18%)   |2.27 (**21%**) 

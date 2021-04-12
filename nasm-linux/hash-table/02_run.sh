@@ -182,7 +182,7 @@ done
 # ================================ CRC32 + find + AVX optimized ================================
 
 # ================================ Failed #1 optimized ================================
-for level in {0..3}
+for level in 0
 do
     echo "====Tests failed_1 optimized -O$level====" >> bin/$OUTPUT_OPTIMIZATION
     make -f 02_makefile_failed1 OptimizationLevel=-O$level OptimizationVersion=CRC32_OPTIMIZED Optimize=1 >> bin/$OUTPUT_OPTIMIZATION

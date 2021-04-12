@@ -5,8 +5,8 @@
 
 const size_t WORDS_COUNT      = 466471; 
 const size_t HASH_TABLE_SIZE  = 491039; // 466,472 / 0.95 = 491,023 or 491039 (the nearest prime) 
-const size_t INSERTIONS_COUNT = 1;
-const size_t SEARCHES_COUNT   = 1; 
+const size_t INSERTIONS_COUNT = 5;
+const size_t SEARCHES_COUNT   = 200; 
 
 const char** readWords      (char** buffer);
 void         testInsertions (HashTable* hashTable, const char** words); 

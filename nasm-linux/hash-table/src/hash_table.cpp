@@ -50,7 +50,7 @@ __m256i strToYMM(const char* string)
 {
     assert(string);
 
-    static char buffer[sizeof(__m256i)] = "";
+    char buffer[sizeof(__m256i)] = "";
     strcpy(buffer, string);
     
     return _mm256_loadu_si256((const __m256i_u*) buffer);
