@@ -21,4 +21,6 @@ uint32_t getXorRightRotateHash (const char* string);
 uint32_t getXorLeftRotateHash  (const char* string);
 uint32_t getMurmur3Hash        (const char* string);
 uint32_t getCrc32Hash          (const char* string);
+uint32_t getPolynomialHash     (const char* string);
+uint32_t getOPPolynomialHash   (const char* string);
 uint32_t getOPCrc32Hash        (const char* string) __attribute__((noinline));

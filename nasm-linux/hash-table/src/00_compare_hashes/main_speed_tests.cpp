@@ -25,21 +25,23 @@ const Sample SAMPLES[SAMPLES_COUNT] = {
         { STRING_SENTENCE,   "Sentence",                   255 },
     };
 
-const size_t TESTS_COUNT = 1e7;
+const size_t TESTS_COUNT = 1e9;
 
 void testHashFunction(uint32_t (*getHash)(const char* string), const char* hashName);
 
 int main()
 {
-    testHashFunction(getConstantHash,       "constant hash");
-    testHashFunction(getStrLenHash,         "strlen hash");
-    testHashFunction(getFirstCharHash,      "first char hash");
-    testHashFunction(getSumCharsHash,       "sum chars hash");
-    testHashFunction(getXorRightRotateHash, "xor right rotate hash");
-    testHashFunction(getXorLeftRotateHash,  "xor left rotate hash");
-    testHashFunction(getMurmur3Hash,        "murmur3 hash");
+    // testHashFunction(getConstantHash,       "constant hash");
+    // testHashFunction(getStrLenHash,         "strlen hash");
+    // testHashFunction(getFirstCharHash,      "first char hash");
+    // testHashFunction(getSumCharsHash,       "sum chars hash");
+    // testHashFunction(getXorRightRotateHash, "xor right rotate hash");
+    // testHashFunction(getXorLeftRotateHash,  "xor left rotate hash");
+    // testHashFunction(getMurmur3Hash,        "murmur3 hash");
     testHashFunction(getCrc32Hash,          "crc32 hash");
     testHashFunction(getOPCrc32Hash,        "optimized crc32 hash");
+    testHashFunction(getPolynomialHash,     "polynomial hash");
+    testHashFunction(getOPPolynomialHash,   "optimized polynomial hash");
 
     return 0;
 }

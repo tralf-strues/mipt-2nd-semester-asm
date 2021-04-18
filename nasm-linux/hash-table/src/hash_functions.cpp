@@ -17,6 +17,7 @@ const uint32_t MURMUR_FINAL_MUL_2       = 0xC2B2AE35;
 const uint32_t MURMUR_FINAL_SHIFT_RIGHT = 13; 
 
 const uint32_t MURMUR_SEED              = 0x35C2A;    // seed
+const uint32_t POLYNOMIAL_HASH_NUMBER   = 239017;
 
 static const uint32_t CRC32_TABLE[] = {
         0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9,
@@ -205,6 +206,52 @@ uint32_t getCrc32Hash(const char* string)
     }
 
     return hash;        
+}
+
+uint32_t getOPPolynomialHash(const char* string)
+{
+    uint32_t hash = 0;
+
+    __asm__ 
+    (
+        ".intel_syntax noprefix          \n\t"
+        "mov rsi, 239017                 \n\t"
+        "xor rax, rax                    \n\t"
+        "                                \n\t"
+        ".CalculateHash:                 \n\t"
+        "       xor rcx, rdx             \n\t"
+        "       mov cl, BYTE PTR [rdi]   \n\t"
+        "       or cl, cl                \n\t"
+        "                                \n\t"
+        "       jz .ReturnHash           \n\t"
+        "                                \n\t"
+        "       inc rdi                  \n\t"
+        "       mul rsi                  \n\t"
+        "       add rax, rcx             \n\t"
+        "       jmp .CalculateHash       \n\t"
+        "                                \n\t"
+        ".ReturnHash:                    \n\t"
+        ".att_syntax                     \n\t"
+
+        :"=a"(hash)
+        :
+        :"rsi", "rdx", "rcx", "rdi"  
+    );
+
+    return hash;
+}
+
+uint32_t getPolynomialHash(const char* string)
+{
+    assert(string);
+
+    size_t hash = 0;
+    while (*string != '\0') {
+        hash = hash * POLYNOMIAL_HASH_NUMBER + *string;
+        string++;
+    }
+
+    return hash;
 }
 
 uint32_t getOPCrc32Hash(const char* string)
