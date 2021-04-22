@@ -54,10 +54,13 @@ enum ParseError
 
     PARSE_ERROR_NO_EXPRESSION_INSIDE_BRACKETS,
 
-    PARSE_ERRORS_COUNT
+    PARSE_ERROR_NO_STRING_AFTER_QUOTE,
+    PARSE_ERROR_NO_SECOND_QUOTE_AFTER_STRING,
+
+    TOTAL_PARSE_ERRORS
 };
 
-static const char* PARSE_ERROR_STRINGS[PARSE_ERRORS_COUNT] = {
+static const char* PARSE_ERROR_STRINGS[TOTAL_PARSE_ERRORS] = {
     "no error",
 
     "no program start ('Godric's-Hollow') found",
@@ -104,7 +107,10 @@ static const char* PARSE_ERROR_STRINGS[PARSE_ERRORS_COUNT] = {
     "there's no such term operation",
     "there's no such factor operation",
 
-    "an expression inside protegos is needed"
+    "an expression inside protegos is needed",
+
+    "after an opening quote \" there has to be a string",
+    "quoted string has to have a closing \" after a string",
 };
 
 struct Parser

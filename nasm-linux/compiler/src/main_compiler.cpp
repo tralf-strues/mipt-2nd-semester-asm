@@ -69,14 +69,10 @@ Error processFlagUseNumerics       (FlagManager* flagManager);
 Error processFlagHelp              (FlagManager* flagManager);
 Error processFlagOutput            (FlagManager* flagManager);
 
-Error processFlags                 (FlagManager* flagManager);
-void  printHelp                    ();
-Error compile                      (FlagManager* flagManager);
-void  makeGraphDump                (const FlagManager* flagManager, 
-                                    const Node* tree, 
-                                    void (*graphDump) (const Node* root, 
-                                                       const char* treeFilename, 
-                                                       const char* outputFilename));
+Error processFlags  (FlagManager* flagManager);
+void  printHelp     ();
+Error compile       (const FlagManager* flagManager);
+void  makeGraphDump (const FlagManager* flagManager, const Node* tree, bool detailed);
 
 const char*  DEFAULT_OUTPUT      = "a.asm";
 const size_t MAX_FILENAME_LENGTH = 128;
@@ -101,6 +97,7 @@ const char* FLAGS_HELP_MESSAGES[TOTAL_FLAGS] = {
     /*====FLAG_TREE_DUMP====*/
     "\tWrites the syntax tree to file.\n",
 
+    // FIXME: outdated
     /*====FLAG_SYMB_TABLE_DUMP====*/
     "\tPrints the symbol table in the following format:\n"
     "\tSymbol table:\n"
@@ -310,9 +307,7 @@ void printHelp()
     }
 }
 
-void makeGraphDump(const FlagManager* flagManager, 
-                   const Node* tree, 
-                   void (*graphDump) (const Node* root, const char* treeFilename, const char* outputFilename))
+void makeGraphDump(const FlagManager* flagManager, const Node* tree, bool detailed)
 {
     assert(flagManager);
     assert(tree);
@@ -326,7 +321,7 @@ void makeGraphDump(const FlagManager* flagManager,
     char imageFilename[MAX_FILENAME_LENGTH] = {};
     snprintf(imageFilename, sizeof(imageFilename), "%s%u.svg", "log/tree_dumps/graph/img/tree", count);
 
-    graphDump(tree, textFilename, imageFilename);
+    graphDump(tree, textFilename, imageFilename, detailed);
 
     if (flagManager->openGraphDumpEnabled)
     {
@@ -336,7 +331,7 @@ void makeGraphDump(const FlagManager* flagManager,
     }
 }
 
-Error compile(FlagManager* flagManager)
+Error compile(const FlagManager* flagManager)
 {
     assert(flagManager);
 
@@ -381,12 +376,12 @@ Error compile(FlagManager* flagManager)
 
     if (flagManager->simpleGraphDumpEnabled)
     {
-        makeGraphDump(flagManager, tree, graphSimpleDump);
+        makeGraphDump(flagManager, tree, false);
     }
 
     if (flagManager->detailedGraphDumpEnabled)
     {
-        makeGraphDump(flagManager, tree, graphDetailedDump);
+        makeGraphDump(flagManager, tree, true);
     }
 
     if (flagManager->symbTableDumpEnabled)

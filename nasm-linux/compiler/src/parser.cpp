@@ -38,6 +38,7 @@ bool   requireNewLines     (Parser* parser);
 void   syntaxError         (Parser* parser, ParseError error);
 
 Node*  parseProgramBody    (Parser* parser);
+// Node*  parseSDeclaration   (Parser* parser);
 Node*  parseFDeclaration   (Parser* parser);
 
 Node*  parseBlock          (Parser* parser);
@@ -64,6 +65,7 @@ Node*  parseStandardFunc   (Parser* parser, KeywordCode keywordCode);
 Node*  parseExprList       (Parser* parser);
 Node*  parseParamList      (Parser* parser);
 
+Node*  parseQuotedString   (Parser* parser);
 Node*  parseId             (Parser* parser);
 Node*  parseNumber         (Parser* parser);
 
@@ -89,7 +91,7 @@ void destroy(Parser* parser)
 
 const char* errorString(ParseError error)
 {
-    if (error < PARSE_ERRORS_COUNT)
+    if (error < TOTAL_PARSE_ERRORS)
     {
         return PARSE_ERROR_STRINGS[error];
     }
@@ -277,6 +279,17 @@ Node* parseProgramBody(Parser* parser)
 
     return root;
 }
+
+// Node* parseSDeclaration(Parser* parser)
+// {
+//     ASSERT_PARSER(parser);
+//     CHECK_END_REACHED(nullptr);
+
+//     if (!isKeyword(curToken(parser), STR_QUOTE_KEYWORD)) { return nullptr; }
+//     proceed(parser);
+
+//     Node* stringQuoted = parse
+// }
 
 Node* parseFDeclaration(Parser* parser)
 {
@@ -685,6 +698,12 @@ Node* parsePrint(Parser* parser)
     if (!isKeyword(curToken(parser), PRINT_KEYWORD)) { return nullptr; }
     proceed(parser);
 
+    Node* quotedString = parseQuotedString(parser);
+    if (quotedString != nullptr)
+    {
+        return newNode(CALL_TYPE, {}, ID(KEYWORDS[PRINT_KEYWORD].string), quotedString);
+    }
+
     Node* expression = parseExpression(parser);
     if (expression == nullptr) { SYNTAX_ERROR(PARSE_ERROR_PRINT_EXPRESSION_NEEDED); }
 
@@ -794,6 +813,33 @@ Node* parseParamList(Parser* parser)
     }
 
     return param;
+}
+
+Node* parseQuotedString(Parser* parser)
+{
+    ASSERT_PARSER(parser);
+
+    if (!isKeyword(curToken(parser), STR_QUOTE_KEYWORD)) { return nullptr; }
+    proceed(parser);
+
+    if (!isQuotedStringType(curToken(parser)))
+    {
+        SYNTAX_ERROR(PARSE_ERROR_NO_STRING_AFTER_QUOTE);
+    }
+
+    Node* string = newNode(STRING_TYPE, 
+                           {.string = curToken(parser)->data.quotedString}, 
+                           nullptr, 
+                           nullptr);
+
+    proceed(parser);
+    if (!isKeyword(curToken(parser), STR_QUOTE_KEYWORD)) 
+    { 
+        SYNTAX_ERROR(PARSE_ERROR_NO_SECOND_QUOTE_AFTER_STRING);
+    }
+    
+    proceed(parser);
+    return string;
 }
 
 Node* parseId(Parser* parser)

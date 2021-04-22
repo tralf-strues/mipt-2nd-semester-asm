@@ -78,33 +78,33 @@ CompilerError compile(Compiler* compiler, const char* outputFile)
     assert(compiler);
     assert(outputFile);
 
-    OUTPUT = fopen(outputFile, "w");
-    if (OUTPUT == nullptr)
-    {
-        compileError(compiler, COMPILER_ERROR_FILE_OPEN_FAILURE);
-        return compiler->status;
-    }
+    // OUTPUT = fopen(outputFile, "w");
+    // if (OUTPUT == nullptr)
+    // {
+    //     compileError(compiler, COMPILER_ERROR_FILE_OPEN_FAILURE);
+    //     return compiler->status;
+    // }
 
-    if (getFunction(compiler->table, MAIN_FUNCTION_NAME) == nullptr)
-    {
-        compileError(compiler, COMPILER_ERROR_NO_MAIN_FUNCTION);
-        return compiler->status;
-    }
+    // if (getFunction(compiler->table, MAIN_FUNCTION_NAME) == nullptr)
+    // {
+    //     compileError(compiler, COMPILER_ERROR_NO_MAIN_FUNCTION);
+    //     return compiler->status;
+    // }
 
-    CUR_FUNC = compiler->table->functions;
+    // CUR_FUNC = compiler->table->functions;
 
-    fprintf(OUTPUT, "call :love\n"
-                    "hlt\n\n");
+    // fprintf(OUTPUT, "call :love\n"
+    //                 "hlt\n\n");
 
-    Node* curDeclaration = compiler->tree;
-    while (curDeclaration != nullptr)
-    {
-        writeFunction(compiler, curDeclaration->right);
-        curDeclaration = curDeclaration->left;
-        CUR_FUNC++;
-    }
+    // Node* curDeclaration = compiler->tree;
+    // while (curDeclaration != nullptr)
+    // {
+    //     writeFunction(compiler, curDeclaration->right);
+    //     curDeclaration = curDeclaration->left;
+    //     CUR_FUNC++;
+    // }
 
-    fclose(OUTPUT);
+    // fclose(OUTPUT);
 
     return compiler->status;
 }

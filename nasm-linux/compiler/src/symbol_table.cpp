@@ -140,7 +140,7 @@ void dump(SymbolTable* table)
     printf("Symbol table:\n"
            "    functionsCapacity = %zu\n"
            "    functionsCount    = %zu\n\n"
-           "    functions = { ", 
+           "    functions = { \n                  ", 
            table->functionsCapacity, 
            table->functionsCount);
 
@@ -160,12 +160,19 @@ void dump(SymbolTable* table)
                    function->varsCount,
                    function->paramsCount);
 
-            for (size_t j = 0; j < function->varsCount; j++)
+            if (function->varsCount != 0)
             {
-                printf("'%s', ", function->vars[j]);
-            }
+                for (size_t j = 0; j < function->varsCount; j++)
+                {
+                    printf("'%s', ", function->vars[j]);
+                }
 
-            printf("\b\b] }");
+                printf("\b\b] }");
+            }
+            else 
+            {
+                printf("none] }");
+            }
 
             if (i < table->functionsCount - 1)
             {

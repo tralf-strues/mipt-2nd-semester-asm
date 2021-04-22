@@ -8,7 +8,9 @@ union NodeData
     int64_t     number;
     MathOp      operation;
     const char* id;
+    
     bool        isVoidFunction;
+    const char* string;
 };
 
 // FIXME: change all names 
@@ -34,6 +36,8 @@ enum NodeType
 
     MATH_TYPE,
     NUMBER_TYPE,
+
+    STRING_TYPE,
 
     TYPES_COUNT
 };
@@ -66,14 +70,14 @@ Node*  copyTree          (const Node* root);
 bool   isLeft            (const Node* node);
 
 void   setData           (Node* node, NodeType type, NodeData data);
-void   setData           (Node* node, int64_t number);
-void   setData           (Node* node, MathOp op);
-void   setData           (Node* node, const char* id);
-void   setData           (Node* node, bool isVoidFunction);
+void   setDataNumber     (Node* node, int64_t number);
+void   setDataOperation  (Node* node, MathOp op);
+void   setDataId         (Node* node, const char* id);
+void   setDataIsVoidFunc (Node* node, bool isVoidFunction);
+void   setDataString     (Node* node, const char* string);
 
 int    counterFileUpdate (const char* filename);
-void   graphSimpleDump   (const Node* root, const char* treeFilename, const char* outputFilename);
-void   graphDetailedDump (const Node* root, const char* treeFilename, const char* outputFilename);
+void   graphDump         (const Node* root, const char* treeFilename, const char* outputFilename, bool detailed);
 
 void   dumpToFile        (FILE* file, const Node* root);
 Node*  readTreeFromFile  (const char* filename);

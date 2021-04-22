@@ -137,7 +137,7 @@ return  ::= 'reverte'
 ================================================================================
 Grammar      ::= 'Godric's-Hollow' Var NewLines ProgramBody 'Privet-Drive'
 
-ProgramBody  ::= {Declaration}+ {FunctionDecl}+
+ProgramBody  ::= {StringDecl}+ {FunctionDecl}+
 StringDecl   ::= 'Chapter' StringName StringQuoted
 FunctionDecl ::= 'imperio' Var ParamList Block | 'imperio' horcrux Var ParamList Block
 

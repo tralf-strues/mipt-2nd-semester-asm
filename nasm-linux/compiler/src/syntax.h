@@ -69,6 +69,10 @@ enum KeywordCode
     LESS_KEYWORD,
     GREATER_KEYWORD,
 
+    // STR_ID_OPEN_KEYWORD,
+    // STR_ID_CLOSE_KEYWORD,
+    STR_QUOTE_KEYWORD,
+
     KEYWORDS_COUNT,
     INVALID_KEYWORD = -1
 };
@@ -135,7 +139,9 @@ static const Keyword KEYWORDS[KEYWORDS_COUNT] = {
     { "less-equal",      10, LESS_EQUAL_KEYWORD,    TO_STR(LESS_EQUAL_KEYWORD)    },
     { "greater-equal",   13, GREATER_EQUAL_KEYWORD, TO_STR(GREATER_EQUAL_KEYWORD) }, 
     { "less",            4,  LESS_KEYWORD,          TO_STR(LESS_KEYWORD)          },
-    { "greater",         7,  GREATER_KEYWORD,       TO_STR(GREATER_KEYWORD)       }
+    { "greater",         7,  GREATER_KEYWORD,       TO_STR(GREATER_KEYWORD)       },
+    
+    { "\"",              1,  STR_QUOTE_KEYWORD,     TO_STR(STR_QUOTE_KEYWORD)     }
 };
 
 const char* mathOpToString      (MathOp operation);

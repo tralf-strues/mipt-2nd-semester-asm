@@ -13,15 +13,17 @@
 
 const size_t MAX_TOKENS_COUNT = 8192;
 
-bool    finished        (Tokenizer* tokenizer);
-void    skipSpaces      (Tokenizer* tokenizer);
-void    proceed         (Tokenizer* tokenizer, size_t step);
-void    addToken        (Tokenizer* tokenizer, Token token);
-bool    processKeyword  (Tokenizer* tokenizer);
-bool    isKeywordNumber (Keyword keyword);
-int64_t keywordToNumber (Keyword keyword);
-bool    processNumeric  (Tokenizer* tokenizer);
-bool    processId       (Tokenizer* tokenizer);
+bool    finished            (Tokenizer* tokenizer);
+void    skipSpaces          (Tokenizer* tokenizer);
+void    proceed             (Tokenizer* tokenizer, size_t step);
+void    addToken            (Tokenizer* tokenizer, Token token);
+
+bool    processQuotedString (Tokenizer* tokenizer);
+bool    processKeyword      (Tokenizer* tokenizer);
+bool    isKeywordNumber     (Keyword keyword);
+int64_t keywordToNumber     (Keyword keyword);
+bool    processNumeric      (Tokenizer* tokenizer);
+bool    processId           (Tokenizer* tokenizer);
 
 void construct(Tokenizer* tokenizer, const char* buffer, size_t bufferSize, bool useNumericNumbers)
 {
@@ -55,49 +57,64 @@ void destroy(Tokenizer* tokenizer)
     tokenizer->currentLine = 0;
 }
 
-bool isNumberType(Token* token)
+bool isQuotedStringType(const Token* token)
 {
     assert(token);
 
-    return token->type == NUMBER_TOKEN_TYPE;
+    return token->type == QUOTED_STRING_TOKEN_TYPE;
 }
 
-bool isIdType(Token* token)
-{
-    assert(token);
-
-    return token->type == ID_TOKEN_TYPE;
-}
-
-bool isKeywordType(Token* token)
+bool isKeywordType(const Token* token)
 {
     assert(token);
 
     return token->type == KEYWORD_TOKEN_TYPE;
 }
 
-bool isNumber(Token* token, int64_t number)
+bool isNumberType(const Token* token)
 {
     assert(token);
 
-    return isNumberType(token) && token->data.number == number;
+    return token->type == NUMBER_TOKEN_TYPE;
 }
 
-bool isId(Token* token, const char* id)
+bool isIdType(const Token* token)
 {
     assert(token);
 
-    return isIdType(token) && strcmp(token->data.id, id) == 0;
+    return token->type == ID_TOKEN_TYPE;
 }
 
-bool isKeyword(Token* token, KeywordCode keywordCode)
+bool isQuotedString(const Token* token, const char* quotedString)
+{
+    assert(token);
+
+    return isQuotedStringType(token) && 
+           strcmp(token->data.quotedString, quotedString) == 0;
+}
+
+bool isKeyword(const Token* token, KeywordCode keywordCode)
 {
     assert(token);
 
     return isKeywordType(token) && token->data.keywordCode == keywordCode;
 }
 
-bool isComparand(Token* token)
+bool isNumber(const Token* token, int64_t number)
+{
+    assert(token);
+
+    return isNumberType(token) && token->data.number == number;
+}
+
+bool isId(const Token* token, const char* id)
+{
+    assert(token);
+
+    return isIdType(token) && strcmp(token->data.id, id) == 0;
+}
+
+bool isComparand(const Token* token)
 {
     assert(token);
 
@@ -106,7 +123,7 @@ bool isComparand(Token* token)
            token->data.keywordCode <= GREATER_KEYWORD;
 }
 
-bool isTerm(Token* token)
+bool isTerm(const Token* token)
 {
     assert(token);
 
@@ -115,7 +132,7 @@ bool isTerm(Token* token)
            token->data.keywordCode <= MINUS_KEYWORD;
 }
 
-bool isFactor(Token* token)
+bool isFactor(const Token* token)
 {
     assert(token);
 
@@ -132,7 +149,10 @@ void tokenizeBuffer(Tokenizer* tokenizer)
 
     while (!finished(tokenizer))
     {
-        if (!processKeyword(tokenizer) && !processNumeric(tokenizer) && !processId(tokenizer))
+        if (!processQuotedString(tokenizer) && 
+            !processKeyword(tokenizer) && 
+            !processNumeric(tokenizer) && 
+            !processId(tokenizer))
         {
             break;
         }
@@ -166,6 +186,54 @@ void addToken(Tokenizer* tokenizer, Token token)
     ASSERT_TOKENIZER(tokenizer);
 
     tokenizer->tokens[tokenizer->tokensCount++] = token;
+}
+
+bool processQuotedString(Tokenizer* tokenizer)
+{
+    ASSERT_TOKENIZER(tokenizer);
+
+    if (*(tokenizer->position) != '\"') { return false; }
+
+    addToken(tokenizer, {KEYWORD_TOKEN_TYPE, 
+                         {.keywordCode = STR_QUOTE_KEYWORD}, 
+                         tokenizer->currentLine, 
+                         tokenizer->position});
+    tokenizer->position++;
+
+    const char* quote   = strchr(tokenizer->position, '\"');
+    const char* newLine = strchr(tokenizer->position, '\n');
+
+    const char* end = quote < newLine ? quote : newLine;
+    size_t length = end - tokenizer->position;
+
+    if (length == 0) 
+    {
+        addToken(tokenizer, {QUOTED_STRING_TOKEN_TYPE, 
+                             {.quotedString = nullptr}, 
+                             tokenizer->currentLine, 
+                             tokenizer->position});
+    }
+    else 
+    {
+        addToken(tokenizer, {QUOTED_STRING_TOKEN_TYPE, 
+                             {.quotedString = copyString(tokenizer->position, length)}, 
+                             tokenizer->currentLine, 
+                             tokenizer->position});
+    }
+
+    proceed(tokenizer, length);
+
+    if (end == quote)
+    {
+        addToken(tokenizer, {KEYWORD_TOKEN_TYPE, 
+                             {.keywordCode = STR_QUOTE_KEYWORD}, 
+                             tokenizer->currentLine, 
+                             tokenizer->position});
+        
+        proceed(tokenizer, 1);
+    }
+
+    return true;
 }
 
 bool processKeyword(Tokenizer* tokenizer)
@@ -293,6 +361,31 @@ void dumpTokens(const Token* tokens, size_t count, FILE* file)
 
         switch (tokens[i].type)
         {
+            case QUOTED_STRING_TOKEN_TYPE:
+            {
+                fprintf(file, "(quotedString) \"%s\"\n", tokens[i].data.id);
+                break;
+            }
+
+            case KEYWORD_TOKEN_TYPE: 
+            { 
+                if (tokens[i].data.keywordCode == NEW_LINE_KEYWORD)
+                {
+                    fprintf(file, "(keywordCode) %s[%d] \\n\n", 
+                                  keywordCodeToString(tokens[i].data.keywordCode),
+                                  tokens[i].data.keywordCode); 
+                }
+                else 
+                {
+                    fprintf(file, "(keywordCode) %s[%d] %s\n", 
+                                  keywordCodeToString(tokens[i].data.keywordCode),
+                                  tokens[i].data.keywordCode, 
+                                  KEYWORDS[tokens[i].data.keywordCode].string); 
+                }
+
+                break; 
+            }
+
             case NUMBER_TOKEN_TYPE: 
             { 
                 fprintf(file, "(number) %" PRId64 "\n", tokens[i].data.number);
@@ -301,26 +394,7 @@ void dumpTokens(const Token* tokens, size_t count, FILE* file)
 
             case ID_TOKEN_TYPE: 
             { 
-                fprintf(file, "(id) '%s'\n", tokens[i].data.id);
-                break; 
-            }
-
-            case KEYWORD_TOKEN_TYPE: 
-            { 
-                if (tokens[i].data.keywordCode == NEW_LINE_KEYWORD)
-                {
-                    fprintf(file, "(keywordCode) %s[%d] '\\n'\n", 
-                                  keywordCodeToString(tokens[i].data.keywordCode),
-                                  tokens[i].data.keywordCode); 
-                }
-                else 
-                {
-                    fprintf(file, "(keywordCode) %s[%d] '%s'\n", 
-                                  keywordCodeToString(tokens[i].data.keywordCode),
-                                  tokens[i].data.keywordCode, 
-                                  KEYWORDS[tokens[i].data.keywordCode].string); 
-                }
-
+                fprintf(file, "(id) %s\n", tokens[i].data.id);
                 break; 
             }
         }
@@ -343,9 +417,10 @@ const char* tokenTypeToString(TokenType type)
 {
     switch (type)
     {
-        case NUMBER_TOKEN_TYPE:  { return TO_STR(NUMBER_TOKEN_TYPE);  }
-        case ID_TOKEN_TYPE:      { return TO_STR(ID_TOKEN_TYPE);      }
-        case KEYWORD_TOKEN_TYPE: { return TO_STR(KEYWORD_TOKEN_TYPE); }
+        case QUOTED_STRING_TOKEN_TYPE: { return TO_STR(QUOTED_STRING_TOKEN_TYPE); }
+        case KEYWORD_TOKEN_TYPE:       { return TO_STR(KEYWORD_TOKEN_TYPE);       }
+        case NUMBER_TOKEN_TYPE:        { return TO_STR(NUMBER_TOKEN_TYPE);        }
+        case ID_TOKEN_TYPE:            { return TO_STR(ID_TOKEN_TYPE);            }
     }
 
     return nullptr;

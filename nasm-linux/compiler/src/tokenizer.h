@@ -3,16 +3,18 @@
 
 union TokenData
 {
+    char*       quotedString;
+    KeywordCode keywordCode;
     int64_t     number;
     char*       id;
-    KeywordCode keywordCode;
 };
 
 enum TokenType
 {
+    QUOTED_STRING_TOKEN_TYPE,
+    KEYWORD_TOKEN_TYPE,
     NUMBER_TOKEN_TYPE,
-    ID_TOKEN_TYPE,
-    KEYWORD_TOKEN_TYPE
+    ID_TOKEN_TYPE
 };
 
 struct Token
@@ -36,22 +38,24 @@ struct Tokenizer
     size_t      currentLine;
 };
 
-void construct      (Tokenizer* tokenizer, const char* buffer, size_t bufferSize, bool useNumericNumbers);
-void destroy        (Tokenizer* tokenizer);
+void construct          (Tokenizer* tokenizer, const char* buffer, size_t bufferSize, bool useNumericNumbers);
+void destroy            (Tokenizer* tokenizer);
 
-bool isNumberType   (Token* token);
-bool isIdType       (Token* token);
-bool isKeywordType  (Token* token);
+bool isQuotedStringType (const Token* token);
+bool isKeywordType      (const Token* token);
+bool isNumberType       (const Token* token);
+bool isIdType           (const Token* token);
 
-bool isNumber       (Token* token, int64_t number);
-bool isId           (Token* token, const char* id);
-bool isKeyword      (Token* token, KeywordCode keywordCode);
+bool isQuotedString     (const Token* token, const char* quotedString);
+bool isKeyword          (const Token* token, KeywordCode keywordCode);
+bool isNumber           (const Token* token, int64_t number);
+bool isId               (const Token* token, const char* id);
 
-bool isComparand    (Token* token);
-bool isTerm         (Token* token);
-bool isFactor       (Token* token);
+bool isComparand        (const Token* token);
+bool isTerm             (const Token* token);
+bool isFactor           (const Token* token);
  
-void tokenizeBuffer (Tokenizer* tokenizer);
-void dumpTokens     (const Token* tokens, size_t count, FILE* file);
+void tokenizeBuffer     (Tokenizer* tokenizer);
+void dumpTokens         (const Token* tokens, size_t count, FILE* file);
 
 const char* tokenTypeToString(TokenType type);
