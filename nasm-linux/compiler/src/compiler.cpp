@@ -196,12 +196,12 @@ void writeStatement(Compiler* compiler, Node* node)
 
     switch (node->left->type)
     {
-        case COND_TYPE:  { writeCondition  (compiler, node->left); break; }
-        case LOOP_TYPE:  { writeLoop       (compiler, node->left); break; }
-        case VDECL_TYPE: { writeAssignment (compiler, node->left); break; }
-        case ASSG_TYPE:  { writeAssignment (compiler, node->left); break; }
-        case JUMP_TYPE:  { writeReturn     (compiler, node->left); break; }
-        default:         { writeExpression (compiler, node->left); break; }
+        case COND_TYPE:   { writeCondition  (compiler, node->left); break; }
+        case LOOP_TYPE:   { writeLoop       (compiler, node->left); break; }
+        case VDECL_TYPE:  { writeAssignment (compiler, node->left); break; }
+        case ASSIGN_TYPE: { writeAssignment (compiler, node->left); break; }
+        case JUMP_TYPE:   { writeReturn     (compiler, node->left); break; }
+        default:          { writeExpression (compiler, node->left); break; }
     }
 }
 
@@ -290,11 +290,12 @@ void writeExpression(Compiler* compiler, Node* node)
 
     switch (node->type)
     {
-        case MATH_TYPE: { writeMath   (compiler, node); break; }
-        case NUMB_TYPE: { writeNumber (compiler, node); break; }
-        case NAME_TYPE: { writeVar    (compiler, node); break; }
-        case CALL_TYPE: { writeCall   (compiler, node); break; }
-        default:        { assert(!"Invalid node type"); break; }
+        case MATH_TYPE:   { writeMath   (compiler, node); break; }
+        case NUMBER_TYPE: { writeNumber (compiler, node); break; }
+        case ID_TYPE:     { writeVar    (compiler, node); break; }
+        case CALL_TYPE:   { writeCall   (compiler, node); break; }
+
+        default:          { assert(!"Valid node type");   break; }
     }
 }
 
@@ -320,7 +321,7 @@ void writeMath(Compiler* compiler, Node* node)
         case SUB_OP: { fprintf(OUTPUT, "sub\n\n"); break; }
         case MUL_OP: { fprintf(OUTPUT, "mul\n\n"); break; }
         case DIV_OP: { fprintf(OUTPUT, "div\n\n"); break; }
-        default:     { assert(!"Invalid math op"); break; }
+        default:     { assert(!"Valid math op");   break; }
     }
 }
 

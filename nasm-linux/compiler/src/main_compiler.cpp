@@ -22,7 +22,8 @@ enum Error
 enum Flag
 {
     FLAG_TOKEN_DUMP,
-    FLAG_GRAPH_DUMP,
+    FLAG_SIMPLE_GRAPH_DUMP,
+    FLAG_DETAILED_GRAPH_DUMP,
     FLAG_OPEN_GRAPH_DUMP,
     FLAG_TREE_DUMP,
     FLAG_SYMB_TABLE_DUMP,
@@ -42,7 +43,8 @@ struct FlagManager
     const char*  output;
 
     bool         tokenDumpEnabled;
-    bool         graphDumpEnabled;
+    bool         simpleGraphDumpEnabled;
+    bool         detailedGraphDumpEnabled;
     bool         openGraphDumpEnabled;
     bool         treeDumpEnabled;
     bool         symbTableDumpEnabled;
@@ -57,18 +59,24 @@ struct FlagSpecification
     const char* helpMessage;
 };
 
-Error processFlagTokenDump     (FlagManager* flagManager);
-Error processFlagGraphDump     (FlagManager* flagManager);
-Error processFlagOpenGraphDump (FlagManager* flagManager);
-Error processFlagTreeDump      (FlagManager* flagManager);
-Error processFlagSymbTableDump (FlagManager* flagManager);
-Error processFlagUseNumerics   (FlagManager* flagManager);
-Error processFlagHelp          (FlagManager* flagManager);
-Error processFlagOutput        (FlagManager* flagManager);
+Error processFlagTokenDump         (FlagManager* flagManager);
+Error processFlagSimpleGraphDump   (FlagManager* flagManager);
+Error processFlagDetailedGraphDump (FlagManager* flagManager);
+Error processFlagOpenGraphDump     (FlagManager* flagManager);
+Error processFlagTreeDump          (FlagManager* flagManager);
+Error processFlagSymbTableDump     (FlagManager* flagManager);
+Error processFlagUseNumerics       (FlagManager* flagManager);
+Error processFlagHelp              (FlagManager* flagManager);
+Error processFlagOutput            (FlagManager* flagManager);
 
-Error processFlags             (FlagManager* flagManager);
-Error compile                  (FlagManager* flagManager);
-void  printHelp                ();
+Error processFlags                 (FlagManager* flagManager);
+void  printHelp                    ();
+Error compile                      (FlagManager* flagManager);
+void  makeGraphDump                (const FlagManager* flagManager, 
+                                    const Node* tree, 
+                                    void (*graphDump) (const Node* root, 
+                                                       const char* treeFilename, 
+                                                       const char* outputFilename));
 
 const char*  DEFAULT_OUTPUT      = "a.asm";
 const size_t MAX_FILENAME_LENGTH = 128;
@@ -81,8 +89,11 @@ const char* FLAGS_HELP_MESSAGES[TOTAL_FLAGS] = {
     "\t\ttype = <type_number>\n"
     "\t\tdata = <token_data>\n",
 
-    /*====FLAG_GRAPH_DUMP====*/
-    "\tWrite graph dump in .svg format.\n",
+    /*====FLAG_SIMPLE_GRAPH_DUMP====*/
+    "\tWrite simple graph dump in .svg format.\n",
+
+    /*====FLAG_DETAILED_GRAPH_DUMP====*/
+    "\tWrite detailed graph dump in .svg format.\n",
 
     /*====FLAG_OPEN_GRAPH_DUMP====*/
     "\tWhen written the graph dump, open it with the default program for viewing .svg format.\n",
@@ -117,10 +128,15 @@ const FlagSpecification FLAG_SPECIFICATIONS[TOTAL_FLAGS] = {
       processFlagTokenDump,     
       FLAGS_HELP_MESSAGES[FLAG_TOKEN_DUMP] },
 
-    { FLAG_GRAPH_DUMP,
-      "--graph-dump",
-      processFlagGraphDump,
-      FLAGS_HELP_MESSAGES[FLAG_GRAPH_DUMP] },
+    { FLAG_SIMPLE_GRAPH_DUMP,
+      "--simple-graph-dump",
+      processFlagSimpleGraphDump,
+      FLAGS_HELP_MESSAGES[FLAG_SIMPLE_GRAPH_DUMP] },
+
+    { FLAG_DETAILED_GRAPH_DUMP,
+      "--detailed-graph-dump",
+      processFlagDetailedGraphDump,
+      FLAGS_HELP_MESSAGES[FLAG_DETAILED_GRAPH_DUMP] },
 
     { FLAG_OPEN_GRAPH_DUMP,
       "--open-graph-dump",
@@ -212,11 +228,19 @@ Error processFlagTokenDump(FlagManager* flagManager)
     return NO_ERROR;
 }
 
-Error processFlagGraphDump(FlagManager* flagManager)
+Error processFlagSimpleGraphDump(FlagManager* flagManager)
 {
     assert(flagManager != nullptr);
 
-    flagManager->graphDumpEnabled = true;
+    flagManager->simpleGraphDumpEnabled = true;
+    return NO_ERROR;
+}
+
+Error processFlagDetailedGraphDump(FlagManager* flagManager)
+{
+    assert(flagManager != nullptr);
+
+    flagManager->detailedGraphDumpEnabled = true;
     return NO_ERROR;
 }
 
@@ -286,6 +310,31 @@ void printHelp()
     }
 }
 
+void makeGraphDump(const FlagManager* flagManager, 
+                   const Node* tree, 
+                   void (*graphDump) (const Node* root, const char* treeFilename, const char* outputFilename))
+{
+    assert(flagManager != nullptr);
+    assert(tree        != nullptr);
+
+    int count = counterFileUpdate("log/tree_dumps/graph/count.cnt");
+       
+    char textFilename[MAX_FILENAME_LENGTH] = {};
+    snprintf(textFilename, sizeof(textFilename), "%s%u.txt", "log/tree_dumps/graph/text/tree", count);
+    
+    char imageFilename[MAX_FILENAME_LENGTH] = {};
+    snprintf(imageFilename, sizeof(imageFilename), "%s%u.svg", "log/tree_dumps/graph/img/tree", count);
+
+    graphDump(tree, textFilename, imageFilename);
+
+    if (flagManager->openGraphDumpEnabled)
+    {
+        char dotCmd[MAX_COMMAND_LENGTH] = {};
+        snprintf(dotCmd, sizeof(dotCmd), "xdg-open %s", imageFilename);
+        system(dotCmd);
+    }
+}
+
 Error compile(FlagManager* flagManager)
 {
     assert(flagManager != nullptr);
@@ -324,24 +373,14 @@ Error compile(FlagManager* flagManager)
         return COMPILATION_FAILED;
     }
 
-    if (flagManager->graphDumpEnabled)
+    if (flagManager->simpleGraphDumpEnabled)
     {
-        int count = counterFileUpdate("log/tree_dumps/graph/count.cnt");
-       
-        char textFilename[MAX_FILENAME_LENGTH] = {};
-        snprintf(textFilename, sizeof(textFilename), "%s%u.txt", "log/tree_dumps/graph/text/tree", count);
-       
-        char imageFilename[MAX_FILENAME_LENGTH] = {};
-        snprintf(imageFilename, sizeof(imageFilename), "%s%u.svg", "log/tree_dumps/graph/img/tree", count);
+        makeGraphDump(flagManager, tree, graphSimpleDump);
+    }
 
-        graphDump(tree, textFilename, imageFilename);
-
-        if (flagManager->openGraphDumpEnabled)
-        {
-            char dotCmd[MAX_COMMAND_LENGTH] = {};
-            snprintf(dotCmd, sizeof(dotCmd), "xdg-open %s", imageFilename);
-            system(dotCmd);
-        }
+    if (flagManager->detailedGraphDumpEnabled)
+    {
+        makeGraphDump(flagManager, tree, graphDetailedDump);
     }
 
     if (flagManager->symbTableDumpEnabled)

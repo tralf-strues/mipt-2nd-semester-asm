@@ -8,32 +8,32 @@ union NodeData
     int64_t     number;
     MathOp      operation;
     const char* id;
-    // bool        isVoidFunction; // FIXME:
+    bool        isVoidFunction;
 };
 
 // FIXME: change all names 
 enum NodeType
 {
-    DECL_TYPE,
+    FDECL_TYPE,
     VDECL_TYPE,
     // ADECL_TYPE,      TODO:
     // MEM_ACCESS_TYPE, TODO:
-    NAME_TYPE,
-    LIST_TYPE,
+    ID_TYPE,
+    CALL_PARAM_TYPE,
 
-    BLCK_TYPE,
-    STAT_TYPE,
+    BLOCK_TYPE,
+    STATEMENT_TYPE,
 
     COND_TYPE,
-    IFEL_TYPE,
+    IFELSE_TYPE,
     LOOP_TYPE,
-    ASSG_TYPE,
+    ASSIGN_TYPE,
 
     CALL_TYPE,
     JUMP_TYPE,
 
     MATH_TYPE,
-    NUMB_TYPE,
+    NUMBER_TYPE,
 
     TYPES_COUNT
 };
@@ -48,8 +48,8 @@ struct Node
     Node*    right;
 };
 
-#define BINARY_OP(op, root1, root2) newNode(MATH_TYPE, { .operation = op##_OP }, root1,   root2)
-#define NAME(name)                  newNode(NAME_TYPE, { .id        = name    }, nullptr, nullptr)
+#define BINARY_OP(op, root1, root2) newNode(MATH_TYPE, { .operation = op##_OP  }, root1,   root2)
+#define ID(idString)                newNode(ID_TYPE,   { .id        = idString }, nullptr, nullptr)
 
 void   destroySubtree    (Node* root);
 
@@ -69,8 +69,13 @@ void   setData           (Node* node, NodeType type, NodeData data);
 void   setData           (Node* node, int64_t number);
 void   setData           (Node* node, MathOp op);
 void   setData           (Node* node, const char* id);
+void   setData           (Node* node, bool isVoidFunction);
 
 int    counterFileUpdate (const char* filename);
-void   graphDump         (Node* root, const char* treeFilename, const char* outputFilename);
-void   dumpToFile        (FILE* file, Node* root);
+void   graphSimpleDump   (const Node* root, const char* treeFilename, const char* outputFilename);
+void   graphDetailedDump (const Node* root, const char* treeFilename, const char* outputFilename);
+
+void   dumpToFile        (FILE* file, const Node* root);
 Node*  readTreeFromFile  (const char* filename);
+
+const char* nodeTypeToString(NodeType type);

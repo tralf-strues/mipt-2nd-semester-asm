@@ -24,8 +24,8 @@ enum KeywordCode
 
     COMMENT_KEYWORD,
 
-    VDECL_KEYWORD,
     FDECL_KEYWORD,
+    VDECL_KEYWORD,
 
     ZERO_KEYWORD,
     TWO_KEYWORD,
@@ -47,7 +47,7 @@ enum KeywordCode
     ELSE_KEYWORD,
     LOOP_KEYWORD,
 
-    ASSGN_KEYWORD,
+    ASSIGN_KEYWORD,
     DEREF_KEYWORD,
 
     SCAN_KEYWORD,
@@ -92,8 +92,8 @@ static const Keyword KEYWORDS[KEYWORDS_COUNT] = {
 
     { "(oNo)",           5,  COMMENT_KEYWORD,       TO_STR(COMMENT_KEYWORD)       },
 
-    { "avenseguim",      10, VDECL_KEYWORD,         TO_STR(VDECL_KEYWORD)         },
     { "imperio",         7,  FDECL_KEYWORD,         TO_STR(FDECL_KEYWORD)         },
+    { "avenseguim",      10, VDECL_KEYWORD,         TO_STR(VDECL_KEYWORD)         },
 
     { "horcrux",         7,  ZERO_KEYWORD,          TO_STR(ZERO_KEYWORD)          },
     { "duo",             3,  TWO_KEYWORD,           TO_STR(TWO_KEYWORD)           },
@@ -115,7 +115,7 @@ static const Keyword KEYWORDS[KEYWORDS_COUNT] = {
     { "otherwise",       9,  ELSE_KEYWORD,          TO_STR(ELSE_KEYWORD)          },
     { "while",           5,  LOOP_KEYWORD,          TO_STR(LOOP_KEYWORD)          },
 
-    { "carpe-retractum", 15, ASSGN_KEYWORD,         TO_STR(ASSGN_KEYWORD)         },
+    { "carpe-retractum", 15, ASSIGN_KEYWORD,        TO_STR(ASSIGN_KEYWORD)        },
     { "legilimens",      10, DEREF_KEYWORD,         TO_STR(DEREF_KEYWORD)         },
 
     { "accio",           5,  SCAN_KEYWORD,          TO_STR(SCAN_KEYWORD)          },
