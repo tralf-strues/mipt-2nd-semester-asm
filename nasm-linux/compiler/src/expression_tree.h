@@ -19,7 +19,7 @@ enum NodeType
     // ADECL_TYPE,      TODO:
     // MEM_ACCESS_TYPE, TODO:
     ID_TYPE,
-    CALL_PARAM_TYPE,
+    EXPR_LIST_TYPE,
 
     BLOCK_TYPE,
     STATEMENT_TYPE,

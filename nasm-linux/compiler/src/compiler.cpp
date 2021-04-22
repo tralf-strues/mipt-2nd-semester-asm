@@ -4,9 +4,9 @@
 
 #include "compiler.h"
 
-#define ASSERT_COMPILER(compiler) assert(compiler        != nullptr); \
-                                  assert(compiler->table != nullptr); \
-                                  assert(compiler->file  != nullptr); \
+#define ASSERT_COMPILER(compiler) assert(compiler);        \
+                                  assert(compiler->table); \
+                                  assert(compiler->file);  \
 
 #define OUTPUT   compiler->file
 #define CUR_FUNC compiler->curFunction
@@ -38,9 +38,9 @@ bool writeStdCall        (Compiler* compiler, Node* node);
 
 void construct(Compiler* compiler, Node* tree, SymbolTable* table)
 {
-    assert(compiler != nullptr);
-    assert(tree     != nullptr);
-    assert(table    != nullptr);
+    assert(compiler);
+    assert(tree);
+    assert(table);
 
     compiler->table = table; 
     compiler->tree  = tree;
@@ -48,7 +48,7 @@ void construct(Compiler* compiler, Node* tree, SymbolTable* table)
 
 void destroy(Compiler* compiler)
 {
-    assert(compiler != nullptr);
+    assert(compiler);
 
     compiler->table = nullptr;
     compiler->tree  = nullptr;
@@ -75,8 +75,8 @@ void compileError(Compiler* compiler, CompilerError error)
 
 CompilerError compile(Compiler* compiler, const char* outputFile)
 {
-    assert(compiler   != nullptr);
-    assert(outputFile != nullptr);
+    assert(compiler);
+    assert(outputFile);
 
     OUTPUT = fopen(outputFile, "w");
     if (OUTPUT == nullptr)
@@ -161,7 +161,7 @@ void writeFunctionHeader(Compiler* compiler)
 void writeFunction(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     writeFunctionHeader(compiler);
 
@@ -178,7 +178,7 @@ void writeFunction(Compiler* compiler, Node* node)
 void writeBlock(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     Node* curStatement = node->right;
     while (curStatement != nullptr)
@@ -191,8 +191,8 @@ void writeBlock(Compiler* compiler, Node* node)
 void writeStatement(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node       != nullptr);
-    assert(node->left != nullptr);
+    assert(node);
+    assert(node->left);
 
     switch (node->left->type)
     {
@@ -208,7 +208,7 @@ void writeStatement(Compiler* compiler, Node* node)
 void writeCondition(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     fprintf(OUTPUT, "; IF statement\n");
 
@@ -238,7 +238,7 @@ void writeCondition(Compiler* compiler, Node* node)
 void writeLoop(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     size_t label = compiler->curLoopLabel++;
 
@@ -262,7 +262,7 @@ void writeLoop(Compiler* compiler, Node* node)
 void writeAssignment(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     writeExpression(compiler, node->right);
 
@@ -272,7 +272,7 @@ void writeAssignment(Compiler* compiler, Node* node)
 void writeReturn(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     writeExpression(compiler, node->right);
 
@@ -286,7 +286,7 @@ void writeReturn(Compiler* compiler, Node* node)
 void writeExpression(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     switch (node->type)
     {
@@ -302,7 +302,7 @@ void writeExpression(Compiler* compiler, Node* node)
 void writeMath(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     MathOp operation = node->data.operation;
 
@@ -328,7 +328,7 @@ void writeMath(Compiler* compiler, Node* node)
 void writeCompare(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     size_t label = compiler->curCmpLabel++;
 
@@ -361,7 +361,7 @@ void writeCompare(Compiler* compiler, Node* node)
 void writeNumber(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     fprintf(OUTPUT, "push %" PRId64 "\n", node->data.number);
 }
@@ -369,7 +369,7 @@ void writeNumber(Compiler* compiler, Node* node)
 void writeVar(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     fprintf(OUTPUT, "push [rax+%d]\n", 2 + getVarOffset(CUR_FUNC, node->data.id));
 }
@@ -377,7 +377,7 @@ void writeVar(Compiler* compiler, Node* node)
 void writeCall(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     if (writeStdCall(compiler, node)) { return; }
 
@@ -413,7 +413,7 @@ void writeCall(Compiler* compiler, Node* node)
 bool writeStdCall(Compiler* compiler, Node* node)
 {
     ASSERT_COMPILER(compiler);
-    assert(node != nullptr);
+    assert(node);
 
     const char* name = node->left->data.id;
     if (strcmp(name, KEYWORDS[PRINT_KEYWORD].string) == 0)

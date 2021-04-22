@@ -196,7 +196,7 @@ int main(int argc, const char* argv[])
 
 Error processFlags(FlagManager* flagManager) 
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     for (int arg = 1; arg < flagManager->argc; arg++)
     {
@@ -222,7 +222,7 @@ Error processFlags(FlagManager* flagManager)
 
 Error processFlagTokenDump(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     flagManager->tokenDumpEnabled = true;
     return NO_ERROR;
@@ -230,7 +230,7 @@ Error processFlagTokenDump(FlagManager* flagManager)
 
 Error processFlagSimpleGraphDump(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     flagManager->simpleGraphDumpEnabled = true;
     return NO_ERROR;
@@ -238,7 +238,7 @@ Error processFlagSimpleGraphDump(FlagManager* flagManager)
 
 Error processFlagDetailedGraphDump(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     flagManager->detailedGraphDumpEnabled = true;
     return NO_ERROR;
@@ -246,7 +246,7 @@ Error processFlagDetailedGraphDump(FlagManager* flagManager)
 
 Error processFlagOpenGraphDump(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     flagManager->openGraphDumpEnabled = true;
     return NO_ERROR;
@@ -254,7 +254,7 @@ Error processFlagOpenGraphDump(FlagManager* flagManager)
 
 Error processFlagTreeDump(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     flagManager->treeDumpEnabled = true;
     return NO_ERROR;
@@ -262,7 +262,7 @@ Error processFlagTreeDump(FlagManager* flagManager)
 
 Error processFlagSymbTableDump(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     flagManager->symbTableDumpEnabled = true;
     return NO_ERROR;
@@ -270,7 +270,7 @@ Error processFlagSymbTableDump(FlagManager* flagManager)
 
 Error processFlagUseNumerics(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     flagManager->useNumerics = true;
     return NO_ERROR;
@@ -278,7 +278,7 @@ Error processFlagUseNumerics(FlagManager* flagManager)
 
 Error processFlagHelp(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     printHelp();
     return NO_ERROR;
@@ -286,7 +286,7 @@ Error processFlagHelp(FlagManager* flagManager)
 
 Error processFlagOutput(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     if (flagManager->curArg + 1 >= flagManager->argc)
     {
@@ -314,8 +314,9 @@ void makeGraphDump(const FlagManager* flagManager,
                    const Node* tree, 
                    void (*graphDump) (const Node* root, const char* treeFilename, const char* outputFilename))
 {
-    assert(flagManager != nullptr);
-    assert(tree        != nullptr);
+    assert(flagManager);
+    assert(tree);
+    assert(graphDump);
 
     int count = counterFileUpdate("log/tree_dumps/graph/count.cnt");
        
@@ -337,7 +338,7 @@ void makeGraphDump(const FlagManager* flagManager,
 
 Error compile(FlagManager* flagManager)
 {
-    assert(flagManager != nullptr);
+    assert(flagManager);
 
     const char* input  = flagManager->input;
     const char* output = flagManager->output;
@@ -359,7 +360,12 @@ Error compile(FlagManager* flagManager)
 
     if (flagManager->tokenDumpEnabled)
     {
-        dumpTokens(tokenizer.tokens, tokenizer.tokensCount);
+        FILE* tokensDumpFile = fopen("dumped_tokens.txt", "w");
+        assert(tokensDumpFile);
+
+        dumpTokens(tokenizer.tokens, tokenizer.tokensCount, tokensDumpFile);
+
+        fclose(tokensDumpFile);
     }
 
     SymbolTable table = {};
@@ -391,7 +397,7 @@ Error compile(FlagManager* flagManager)
     if (flagManager->treeDumpEnabled)
     {
         FILE* file = fopen("dumped_tree.txt", "w");
-        assert(file != nullptr);
+        assert(file);
 
         dumpToFile(file, tree);
 

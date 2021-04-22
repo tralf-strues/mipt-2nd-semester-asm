@@ -52,6 +52,6 @@ bool isTerm         (Token* token);
 bool isFactor       (Token* token);
  
 void tokenizeBuffer (Tokenizer* tokenizer);
-void dumpTokens     (Token* tokens, size_t count);
+void dumpTokens     (const Token* tokens, size_t count, FILE* file);
 
 const char* tokenTypeToString(TokenType type);

@@ -13,10 +13,10 @@ void reallocVariables(Function* function);
 
 void construct(SymbolTable* table)
 {
-    assert(table != nullptr);
+    assert(table);
 
     table->functions = (Function*) calloc(DEFAULT_FUNCS_CAPACITY, sizeof(Function));
-    assert(table->functions != nullptr);
+    assert(table->functions);
 
     table->functionsCount    = 0;
     table->functionsCapacity = DEFAULT_FUNCS_CAPACITY;
@@ -24,7 +24,7 @@ void construct(SymbolTable* table)
 
 void destroy(SymbolTable* table)
 {
-    assert(table != nullptr);
+    assert(table);
 
     for (size_t i = 0; i < table->functionsCount; i++)
     {
@@ -39,9 +39,9 @@ void destroy(SymbolTable* table)
 
 Function* pushFunction(SymbolTable* table, const char* function)
 {
-    assert(table            != nullptr);
-    assert(function         != nullptr);
-    assert(table->functions != nullptr);
+    assert(table);
+    assert(function);
+    assert(table->functions);
 
     while (table->functionsCount >= table->functionsCapacity)
     {
@@ -59,9 +59,9 @@ Function* pushFunction(SymbolTable* table, const char* function)
 
 Function* getFunction(SymbolTable* table, const char* function)
 {
-    assert(table    != nullptr);
-    assert(function != nullptr);
-    assert(table->functions != nullptr);
+    assert(table);
+    assert(function);
+    assert(table->functions);
 
     for (size_t i = 0; i < table->functionsCount; i++)
     {
@@ -82,9 +82,9 @@ void pushParameter(Function* function, const char* parameter)
 
 void pushVariable(Function* function, const char* variable)
 {
-    assert(function       != nullptr);
-    assert(variable       != nullptr);
-    assert(function->vars != nullptr);
+    assert(function);
+    assert(variable);
+    assert(function->vars);
 
     while (function->varsCount >= function->varsCapacity)
     {
@@ -98,9 +98,9 @@ void pushVariable(Function* function, const char* variable)
 
 int getVarOffset(Function* function, const char* variable)
 {
-    assert(function       != nullptr);
-    assert(variable       != nullptr);
-    assert(function->vars != nullptr);
+    assert(function);
+    assert(variable);
+    assert(function->vars);
 
     for (size_t i = 0; i < function->varsCount; i++)
     {
@@ -115,27 +115,27 @@ int getVarOffset(Function* function, const char* variable)
 
 void reallocFunctions(SymbolTable* table)
 {
-    assert(table            != nullptr);
-    assert(table->functions != nullptr);
+    assert(table);
+    assert(table->functions);
 
     table->functionsCapacity *= REALLOC_MULTIPLIER;
     table->functions = (Function*) realloc(table->functions, table->functionsCapacity * sizeof(Function));
-    assert(table->functions != nullptr);
+    assert(table->functions);
 }
 
 void reallocVariables(Function* function)
 {
-    assert(function       != nullptr);
-    assert(function->vars != nullptr);
+    assert(function);
+    assert(function->vars);
 
     function->varsCapacity *= REALLOC_MULTIPLIER;
     function->vars = (char**) realloc(function->vars, function->varsCapacity * sizeof(char*));
-    assert(function->vars != nullptr);
+    assert(function->vars);
 }
 
 void dump(SymbolTable* table)
 {
-    assert(table != nullptr);
+    assert(table);
 
     printf("Symbol table:\n"
            "    functionsCapacity = %zu\n"

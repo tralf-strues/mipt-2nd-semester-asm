@@ -14,7 +14,7 @@ const size_t MAX_COMMAND_LENGTH = 256;
 const char*  FDECL_GRAPH_STYLE      = ", color=\"#000000\", fillcolor=\"#FFFFFF\", fontcolor=\"#000000\"";
 const char*  VDECL_GRAPH_STYLE      = ", color=\"#000000\", fillcolor=\"#FFFFFF\", fontcolor=\"#000000\"";
 const char*  ID_GRAPH_STYLE         = ", color=\"#75A673\", fillcolor=\"#EDFFED\", fontcolor=\"#75A673\"";
-const char*  CALL_PARAM_GRAPH_STYLE = "";
+const char*  EXPR_LIST_GRAPH_STYLE = "";
 
 const char*  BLOCK_GRAPH_STYLE      = ", color=\"#000000\", fillcolor=\"#FFFFFF\", fontcolor=\"#000000\"";
 const char*  STATEMENT_GRAPH_STYLE  = ", color=\"#000000\", fillcolor=\"#FFFFFF\", fontcolor=\"#000000\"";
@@ -86,7 +86,7 @@ Node* newNode(NodeType type, NodeData data, Node* left, Node* right)
 
 void deleteNode(Node* node)
 {
-    assert(node != nullptr);
+    assert(node);
 
     node->parent = nullptr;
     node->left   = nullptr;
@@ -97,7 +97,7 @@ void deleteNode(Node* node)
 
 void setLeft(Node* root, Node* left)
 {
-    assert(root != nullptr);
+    assert(root);
 
     root->left = left;
     if (left != nullptr) { left->parent = root; } 
@@ -105,7 +105,7 @@ void setLeft(Node* root, Node* left)
 
 void setRight(Node* root, Node* right)
 {
-    assert(root != nullptr);
+    assert(root);
 
     root->right = right;
     if (right != nullptr) { right->parent = root; } 
@@ -113,8 +113,8 @@ void setRight(Node* root, Node* right)
 
 void copyNode(Node* dest, const Node* src)
 {
-    assert(dest != nullptr);
-    assert(src  != nullptr);
+    assert(dest);
+    assert(src);
 
     dest->type   = src->type;
     dest->data   = src->data;
@@ -135,15 +135,15 @@ Node* copyTree(const Node* node)
 
 bool isLeft(const Node* node)
 {
-    assert(node         != nullptr);
-    assert(node->parent != nullptr);
+    assert(node);
+    assert(node->parent);
 
     return node == node->parent->left;
 }
 
 void setData(Node* node, NodeType type, NodeData data)
 {
-    assert(node != nullptr);
+    assert(node);
 
     node->type = type;
     node->data = data;
@@ -151,7 +151,7 @@ void setData(Node* node, NodeType type, NodeData data)
 
 void setData(Node* node, int64_t number)
 {
-    assert(node != nullptr);
+    assert(node);
 
     node->type        = NUMBER_TYPE;
     node->data.number = number;
@@ -159,7 +159,7 @@ void setData(Node* node, int64_t number)
 
 void setData(Node* node, MathOp op)
 {
-    assert(node != nullptr);
+    assert(node);
 
     node->type           = MATH_TYPE;
     node->data.operation = op;
@@ -167,7 +167,7 @@ void setData(Node* node, MathOp op)
 
 void setData(Node* node, const char* id)
 {
-    assert(node != nullptr);
+    assert(node);
 
     node->type    = ID_TYPE;
     node->data.id = id;
@@ -175,7 +175,7 @@ void setData(Node* node, const char* id)
 
 void setData(Node* node, bool isVoidFunction)
 {
-    assert(node != nullptr);
+    assert(node);
 
     node->type = FDECL_TYPE; // FIXME: Needed?
     node->data.isVoidFunction = isVoidFunction;
@@ -183,7 +183,7 @@ void setData(Node* node, bool isVoidFunction)
 
 int counterFileUpdate(const char* filename)
 {
-    assert(filename != nullptr);
+    assert(filename);
 
     int count = 0;
 
@@ -211,14 +211,14 @@ void graphGeneralDump(const Node* root,
                       const char* shape,
                       void (*graphGeneralDumpSubtree)(FILE* file, const Node* node))
 {
-    assert(root                    != nullptr);
-    assert(treeFilename            != nullptr);
-    assert(outputFilename          != nullptr);
-    assert(shape                   != nullptr);
-    assert(graphGeneralDumpSubtree != nullptr);
+    assert(root);
+    assert(treeFilename);
+    assert(outputFilename);
+    assert(shape);
+    assert(graphGeneralDumpSubtree);
 
     FILE* file = fopen(treeFilename, "w");
-    assert(file != nullptr);
+    assert(file);
 
     fprintf(file, "digraph structs {\n"
                   "\tnode [shape=\"%s\", "
@@ -259,7 +259,7 @@ void graphDetailedDump(const Node* root, const char* treeFilename, const char* o
 
 void graphSimpleDumpSubtree(FILE* file, const Node* node)
 {
-    assert(file != nullptr);
+    assert(file);
     
     if (node == nullptr) { return; }
 
@@ -268,20 +268,27 @@ void graphSimpleDumpSubtree(FILE* file, const Node* node)
 
     switch (node->type)
     {
-        case FDECL_TYPE:      { fprintf(file, "\"D\"%s",       FDECL_GRAPH_STYLE);      break; }
-        case VDECL_TYPE:      { fprintf(file, "\"=\"%s",       ASSIGN_GRAPH_STYLE);     break; }
-        case CALL_PARAM_TYPE: { fprintf(file, "\"param\"%s",   CALL_PARAM_GRAPH_STYLE); break; } 
+        case VDECL_TYPE:     { fprintf(file, "\"=\"%s",       VDECL_GRAPH_STYLE);      break; }
+        case EXPR_LIST_TYPE: { fprintf(file, "\"param\"%s",   EXPR_LIST_GRAPH_STYLE);  break; } 
         
-        case BLOCK_TYPE:      { fprintf(file, "\"Block\"%s",   BLOCK_GRAPH_STYLE);      break; }
-        case STATEMENT_TYPE:  { fprintf(file, "\"S\"%s",       STATEMENT_GRAPH_STYLE);  break; }
+        case BLOCK_TYPE:     { fprintf(file, "\"Block\"%s",   BLOCK_GRAPH_STYLE);      break; }
+        case STATEMENT_TYPE: { fprintf(file, "\"S\"%s",       STATEMENT_GRAPH_STYLE);  break; }
 
-        case COND_TYPE:       { fprintf(file, "\"if\"%s",      COND_GRAPH_STYLE);       break; } 
-        case IFELSE_TYPE:     { fprintf(file, "\"if-else\"%s", IFELSE_GRAPH_STYLE);     break; } 
-        case LOOP_TYPE:       { fprintf(file, "\"while\"%s",   LOOP_GRAPH_STYLE);       break; } 
-        case ASSIGN_TYPE:     { fprintf(file, "\"=\"%s",       ASSIGN_GRAPH_STYLE);     break; } 
+        case COND_TYPE:      { fprintf(file, "\"if\"%s",      COND_GRAPH_STYLE);       break; } 
+        case IFELSE_TYPE:    { fprintf(file, "\"if-else\"%s", IFELSE_GRAPH_STYLE);     break; } 
+        case LOOP_TYPE:      { fprintf(file, "\"while\"%s",   LOOP_GRAPH_STYLE);       break; } 
+        case ASSIGN_TYPE:    { fprintf(file, "\"=\"%s",       ASSIGN_GRAPH_STYLE);     break; } 
         
-        case CALL_TYPE:       { fprintf(file, "\"call\"%s",    CALL_GRAPH_STYLE);       break; } 
-        case JUMP_TYPE:       { fprintf(file, "\"return\"%s",  JUMP_GRAPH_STYLE);       break; } 
+        case CALL_TYPE:      { fprintf(file, "\"call\"%s",    CALL_GRAPH_STYLE);       break; } 
+        case JUMP_TYPE:      { fprintf(file, "\"return\"%s",  JUMP_GRAPH_STYLE);       break; } 
+        
+        case FDECL_TYPE:      
+        { 
+            fprintf(file, "\"D (%s)\"%s", 
+                          data.isVoidFunction ? "void" : "non-void", 
+                          FDECL_GRAPH_STYLE);      
+            break; 
+        }
         
         case ID_TYPE:         
         { 
@@ -328,7 +335,7 @@ void graphSimpleDumpSubtree(FILE* file, const Node* node)
 
 void graphDetailedDumpSubtree(FILE* file, const Node* node)
 {
-    assert(file != nullptr);
+    assert(file);
     
     if (node == nullptr) { return; }
 
@@ -340,13 +347,15 @@ void graphDetailedDumpSubtree(FILE* file, const Node* node)
     {
         case FDECL_TYPE:  
         { 
-            fprintf(file, "\"{D|%s}\"%s", nodeTypeToString(type), FDECL_GRAPH_STYLE); 
+            fprintf(file, "\"{D (%s)|%s}\"%s", 
+                          data.isVoidFunction ? "void" : "non-void", 
+                          nodeTypeToString(type), FDECL_GRAPH_STYLE); 
             break; 
         }
 
         case VDECL_TYPE: 
         { 
-            fprintf(file, "\"{=|%s}\"%s", nodeTypeToString(type), VDECL_GRAPH_STYLE); // FIXME: 
+            fprintf(file, "\"{=|%s}\"%s", nodeTypeToString(type), VDECL_GRAPH_STYLE);
             break; 
         }
 
@@ -356,9 +365,9 @@ void graphDetailedDumpSubtree(FILE* file, const Node* node)
             break; 
         }
 
-        case CALL_PARAM_TYPE: 
+        case EXPR_LIST_TYPE: 
         { 
-            fprintf(file, "\"{param|%s}\"%s", nodeTypeToString(type), CALL_PARAM_GRAPH_STYLE); 
+            fprintf(file, "\"{param|%s}\"%s", nodeTypeToString(type), EXPR_LIST_GRAPH_STYLE); 
             break; 
         } 
         
@@ -453,9 +462,10 @@ void graphDetailedDumpSubtree(FILE* file, const Node* node)
     graphDetailedDumpSubtree(file, node->right);
 }
 
+// TODO: add new features support
 void dumpToFile(FILE* file, const Node* node)
 {
-    assert(file != nullptr);
+    assert(file);
     if (node == nullptr) { return; }
 
     fprintf(file, "%d | ", node->type);
@@ -505,6 +515,7 @@ void dumpToFile(FILE* file, const Node* node)
     fprintf(file, "} ");
 }
 
+// TODO: add new features support
 Node* readTreeFromFile(const char* filename)
 {
     char*  buffer     = nullptr;
@@ -620,26 +631,26 @@ const char* nodeTypeToString(NodeType type)
 {
     switch (type)
     {
-        case FDECL_TYPE:      { return TO_STR(FDECL_TYPE);      }
-        case VDECL_TYPE:      { return TO_STR(VDECL_TYPE);      }
-        case ID_TYPE:         { return TO_STR(ID_TYPE);         }
-        case CALL_PARAM_TYPE: { return TO_STR(CALL_PARAM_TYPE); }
+        case FDECL_TYPE:     { return TO_STR(FDECL_TYPE);     }
+        case VDECL_TYPE:     { return TO_STR(VDECL_TYPE);     }
+        case ID_TYPE:        { return TO_STR(ID_TYPE);        }
+        case EXPR_LIST_TYPE: { return TO_STR(EXPR_LIST_TYPE); }
         
-        case BLOCK_TYPE:      { return TO_STR(BLOCK_TYPE);      }
-        case STATEMENT_TYPE:  { return TO_STR(STATEMENT_TYPE);  }
+        case BLOCK_TYPE:     { return TO_STR(BLOCK_TYPE);     }
+        case STATEMENT_TYPE: { return TO_STR(STATEMENT_TYPE); }
 
-        case COND_TYPE:       { return TO_STR(COND_TYPE);       }
-        case IFELSE_TYPE:     { return TO_STR(IFELSE_TYPE);     }
-        case LOOP_TYPE:       { return TO_STR(LOOP_TYPE);       }
-        case ASSIGN_TYPE:     { return TO_STR(ASSIGN_TYPE);     }
+        case COND_TYPE:      { return TO_STR(COND_TYPE);      }
+        case IFELSE_TYPE:    { return TO_STR(IFELSE_TYPE);    }
+        case LOOP_TYPE:      { return TO_STR(LOOP_TYPE);      }
+        case ASSIGN_TYPE:    { return TO_STR(ASSIGN_TYPE);    }
 
-        case CALL_TYPE:       { return TO_STR(CALL_TYPE);       }
-        case JUMP_TYPE:       { return TO_STR(JUMP_TYPE);       }
+        case CALL_TYPE:      { return TO_STR(CALL_TYPE);      }
+        case JUMP_TYPE:      { return TO_STR(JUMP_TYPE);      }
 
-        case MATH_TYPE:       { return TO_STR(MATH_TYPE);       }
-        case NUMBER_TYPE:     { return TO_STR(NUMBER_TYPE);     }
+        case MATH_TYPE:      { return TO_STR(MATH_TYPE);      }
+        case NUMBER_TYPE:    { return TO_STR(NUMBER_TYPE);    }
 
-        default:              { return nullptr;                 }          
+        default:             { return nullptr;                }          
     };
 
     return nullptr;

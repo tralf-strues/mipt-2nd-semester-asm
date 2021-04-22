@@ -6,10 +6,10 @@
 #include "tokenizer.h"
 #include "../libs/utilib.h"
 
-#define ASSERT_TOKENIZER(tokenizer) assert((tokenizer)           != nullptr); \
-                                    assert((tokenizer)->buffer   != nullptr); \
-                                    assert((tokenizer)->position != nullptr); \
-                                    assert((tokenizer)->tokens   != nullptr); 
+#define ASSERT_TOKENIZER(tokenizer) assert((tokenizer));           \
+                                    assert((tokenizer)->buffer);   \
+                                    assert((tokenizer)->position); \
+                                    assert((tokenizer)->tokens); 
 
 const size_t MAX_TOKENS_COUNT = 8192;
 
@@ -25,7 +25,7 @@ bool    processId       (Tokenizer* tokenizer);
 
 void construct(Tokenizer* tokenizer, const char* buffer, size_t bufferSize, bool useNumericNumbers)
 {
-    assert(tokenizer != nullptr);
+    assert(tokenizer);
 
     tokenizer->buffer      = buffer;
     tokenizer->bufferSize  = bufferSize;
@@ -37,7 +37,7 @@ void construct(Tokenizer* tokenizer, const char* buffer, size_t bufferSize, bool
 
     tokenizer->useNumericNumbers = useNumericNumbers;
 
-    assert(tokenizer->tokens != nullptr);
+    assert(tokenizer->tokens);
 }
 
 void destroy(Tokenizer* tokenizer)
@@ -57,49 +57,49 @@ void destroy(Tokenizer* tokenizer)
 
 bool isNumberType(Token* token)
 {
-    assert(token != nullptr);
+    assert(token);
 
     return token->type == NUMBER_TOKEN_TYPE;
 }
 
 bool isIdType(Token* token)
 {
-    assert(token != nullptr);
+    assert(token);
 
     return token->type == ID_TOKEN_TYPE;
 }
 
 bool isKeywordType(Token* token)
 {
-    assert(token != nullptr);
+    assert(token);
 
     return token->type == KEYWORD_TOKEN_TYPE;
 }
 
 bool isNumber(Token* token, int64_t number)
 {
-    assert(token != nullptr);
+    assert(token);
 
     return isNumberType(token) && token->data.number == number;
 }
 
 bool isId(Token* token, const char* id)
 {
-    assert(token != nullptr);
+    assert(token);
 
     return isIdType(token) && strcmp(token->data.id, id) == 0;
 }
 
 bool isKeyword(Token* token, KeywordCode keywordCode)
 {
-    assert(token != nullptr);
+    assert(token);
 
     return isKeywordType(token) && token->data.keywordCode == keywordCode;
 }
 
 bool isComparand(Token* token)
 {
-    assert(token != nullptr);
+    assert(token);
 
     return isKeywordType(token) && 
            token->data.keywordCode >= EQUAL_KEYWORD && 
@@ -108,7 +108,7 @@ bool isComparand(Token* token)
 
 bool isTerm(Token* token)
 {
-    assert(token != nullptr);
+    assert(token);
 
     return isKeywordType(token) && 
            token->data.keywordCode >= PLUS_KEYWORD && 
@@ -117,7 +117,7 @@ bool isTerm(Token* token)
 
 bool isFactor(Token* token)
 {
-    assert(token != nullptr);
+    assert(token);
 
     return isKeywordType(token) && 
            token->data.keywordCode >= MUL_KEYWORD && 
@@ -277,30 +277,31 @@ bool processId(Tokenizer* tokenizer)
     return true;
 }
 
-void dumpTokens(Token* tokens, size_t count)
+void dumpTokens(const Token* tokens, size_t count, FILE* file)
 {
-    assert(tokens != nullptr);
+    assert(tokens);
+    assert(file);
 
     for (size_t i = 0; i < count; i++)
     {
-        printf("Token %zu:\n"
-               "\ttype = %s[%d]\n"
-               "\tdata = ", 
-               i,
-               tokenTypeToString(tokens[i].type),
-               tokens[i].type);
+        fprintf(file, "Token %zu:\n"
+                      "\ttype = %s[%d]\n"
+                      "\tdata = ", 
+                      i,
+                      tokenTypeToString(tokens[i].type),
+                      tokens[i].type);
 
         switch (tokens[i].type)
         {
             case NUMBER_TOKEN_TYPE: 
             { 
-                printf("(number) %" PRId64 "\n", tokens[i].data.number);
+                fprintf(file, "(number) %" PRId64 "\n", tokens[i].data.number);
                 break; 
             }
 
             case ID_TOKEN_TYPE: 
             { 
-                printf("(id) '%s'\n", tokens[i].data.id);
+                fprintf(file, "(id) '%s'\n", tokens[i].data.id);
                 break; 
             }
 
@@ -308,32 +309,32 @@ void dumpTokens(Token* tokens, size_t count)
             { 
                 if (tokens[i].data.keywordCode == NEW_LINE_KEYWORD)
                 {
-                    printf("(keywordCode) %s[%d] '\\n'\n", 
-                           keywordCodeToString(tokens[i].data.keywordCode),
-                           tokens[i].data.keywordCode); 
+                    fprintf(file, "(keywordCode) %s[%d] '\\n'\n", 
+                                  keywordCodeToString(tokens[i].data.keywordCode),
+                                  tokens[i].data.keywordCode); 
                 }
                 else 
                 {
-                    printf("(keywordCode) %s[%d] '%s'\n", 
-                           keywordCodeToString(tokens[i].data.keywordCode),
-                           tokens[i].data.keywordCode, 
-                           KEYWORDS[tokens[i].data.keywordCode].string); 
+                    fprintf(file, "(keywordCode) %s[%d] '%s'\n", 
+                                  keywordCodeToString(tokens[i].data.keywordCode),
+                                  tokens[i].data.keywordCode, 
+                                  KEYWORDS[tokens[i].data.keywordCode].string); 
                 }
 
                 break; 
             }
         }
 
-        printf("\tline = %zu\n", tokens[i].line);
+        fprintf(file, "\tline = %zu\n", tokens[i].line);
 
         if (tokens[i].pos[0] == '\n')
         {
-            printf("\tpos  = '\\n'\n\n");
+            fprintf(file, "\tpos  = '\\n'\n\n");
         }
         else
         {
             size_t length = strcspn(tokens[i].pos, "\n");
-            printf("\tpos  = '%.*s'\n\n", (int) length, tokens[i].pos);
+            fprintf(file, "\tpos  = '%.*s'\n\n", (int) length, tokens[i].pos);
         }
     }
 }
