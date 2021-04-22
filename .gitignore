@@ -6,6 +6,7 @@
 *.json
 .vscode
 vgcore.*
+log/
 # Temporary
 *.html
 *.txt

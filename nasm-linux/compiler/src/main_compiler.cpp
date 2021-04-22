@@ -277,7 +277,8 @@ Error processFlagOutput(FlagManager* flagManager)
 
 void printHelp()
 {
-    printf("Simple Harry Potter influenced programming language set. Works with my software cpu.\n");
+    printf("Simple Harry Potter influenced programming language set. "
+           "Works with my software cpu.\n");
 
     for (uint32_t i = 0; i < TOTAL_FLAGS; i++)
     {
@@ -335,9 +336,12 @@ Error compile(FlagManager* flagManager)
 
         graphDump(tree, textFilename, imageFilename);
 
-        char dotCmd[MAX_COMMAND_LENGTH] = {};
-        snprintf(dotCmd, sizeof(dotCmd), "xdg-open %s", imageFilename);
-        system(dotCmd);
+        if (flagManager->openGraphDumpEnabled)
+        {
+            char dotCmd[MAX_COMMAND_LENGTH] = {};
+            snprintf(dotCmd, sizeof(dotCmd), "xdg-open %s", imageFilename);
+            system(dotCmd);
+        }
     }
 
     if (flagManager->symbTableDumpEnabled)

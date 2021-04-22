@@ -5,7 +5,7 @@
 
 union NodeData
 {
-    double      number;
+    int64_t     number;
     MathOp      operation;
     const char* id;
     // bool        isVoidFunction; // FIXME:
@@ -66,7 +66,7 @@ Node*  copyTree          (const Node* root);
 bool   isLeft            (const Node* node);
 
 void   setData           (Node* node, NodeType type, NodeData data);
-void   setData           (Node* node, double number);
+void   setData           (Node* node, int64_t number);
 void   setData           (Node* node, MathOp op);
 void   setData           (Node* node, const char* id);
 

@@ -69,7 +69,8 @@ enum KeywordCode
     LESS_KEYWORD,
     GREATER_KEYWORD,
 
-    KEYWORDS_COUNT
+    KEYWORDS_COUNT,
+    INVALID_KEYWORD = -1
 };
 
 struct Keyword

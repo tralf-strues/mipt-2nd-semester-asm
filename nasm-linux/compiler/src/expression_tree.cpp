@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
+
 #include "expression_tree.h"
 #include "../libs/utilib.h"
 #include "../libs/file_manager.h"
@@ -135,7 +137,7 @@ void setData(Node* node, NodeType type, NodeData data)
     node->data = data;
 }
 
-void setData(Node* node, double number)
+void setData(Node* node, int64_t number)
 {
     assert(node != nullptr);
 
@@ -219,34 +221,43 @@ void graphDumpSubtree(FILE* file, Node* node)
     if (node == nullptr) { return; }
 
     fprintf(file, "\t\"%p\" [label=", (void*) node);
+    NodeData data = node->data;
 
     switch (node->type)
     {
-        case DECL_TYPE:  { fprintf(file, "\"D\"%s];\n",                 DECL_GRAPH_STYLE); break; }
-        case VDECL_TYPE: { fprintf(file, "\"=\"%s];\n",                 ASSG_GRAPH_STYLE); break; }
-        case NAME_TYPE:  { fprintf(file, "\"%s\"%s];\n", node->data.id, NAME_GRAPH_STYLE); break; } 
-        case LIST_TYPE:  { fprintf(file, "\"param\"%s];\n",             LIST_GRAPH_STYLE); break; } 
+        case DECL_TYPE:  { fprintf(file, "\"D\"%s];\n",           DECL_GRAPH_STYLE); break; }
+        case VDECL_TYPE: { fprintf(file, "\"=\"%s];\n",           ASSG_GRAPH_STYLE); break; }
+        case NAME_TYPE:  { fprintf(file, "\"%s\"%s];\n", data.id, NAME_GRAPH_STYLE); break; } 
+        case LIST_TYPE:  { fprintf(file, "\"param\"%s];\n",       LIST_GRAPH_STYLE); break; } 
         
-        case BLCK_TYPE:  { fprintf(file, "\"Block\"%s];\n",             BLCK_GRAPH_STYLE); break; }
-        case STAT_TYPE:  { fprintf(file, "\"S\"%s];\n",                 STAT_GRAPH_STYLE); break; }
+        case BLCK_TYPE:  { fprintf(file, "\"Block\"%s];\n",       BLCK_GRAPH_STYLE); break; }
+        case STAT_TYPE:  { fprintf(file, "\"S\"%s];\n",           STAT_GRAPH_STYLE); break; }
 
-        case COND_TYPE:  { fprintf(file, "\"if\"%s];\n",                COND_GRAPH_STYLE); break; } 
-        case IFEL_TYPE:  { fprintf(file, "\"if-else\"%s];\n",           IFEL_GRAPH_STYLE); break; } 
-        case LOOP_TYPE:  { fprintf(file, "\"while\"%s];\n",             LOOP_GRAPH_STYLE); break; } 
-        case ASSG_TYPE:  { fprintf(file, "\"=\"%s];\n",                 ASSG_GRAPH_STYLE); break; } 
+        case COND_TYPE:  { fprintf(file, "\"if\"%s];\n",          COND_GRAPH_STYLE); break; } 
+        case IFEL_TYPE:  { fprintf(file, "\"if-else\"%s];\n",     IFEL_GRAPH_STYLE); break; } 
+        case LOOP_TYPE:  { fprintf(file, "\"while\"%s];\n",       LOOP_GRAPH_STYLE); break; } 
+        case ASSG_TYPE:  { fprintf(file, "\"=\"%s];\n",           ASSG_GRAPH_STYLE); break; } 
         
-        case CALL_TYPE:  { fprintf(file, "\"call\"%s];\n",              CALL_GRAPH_STYLE); break; } 
-        case JUMP_TYPE:  { fprintf(file, "\"return\"%s];\n",            JUMP_GRAPH_STYLE); break; } 
+        case CALL_TYPE:  { fprintf(file, "\"call\"%s];\n",        CALL_GRAPH_STYLE); break; } 
+        case JUMP_TYPE:  { fprintf(file, "\"return\"%s];\n",      JUMP_GRAPH_STYLE); break; } 
 
-        case MATH_TYPE:  { fprintf(file, "\"%s\"%s];\n", 
-                                   mathOpToString(node->data.operation), 
-                                   MATH_GRAPH_STYLE); break; } 
+        case MATH_TYPE:  
+        { 
+            fprintf(file, "\"%s\"%s];\n", mathOpToString(data.operation), MATH_GRAPH_STYLE); 
+            break; 
+        } 
 
-        case NUMB_TYPE:  { fprintf(file, "\"%lg\"%s];\n", 
-                                   node->data.number, 
-                                   NUMB_GRAPH_STYLE); break; } 
+        case NUMB_TYPE: 
+        { 
+            fprintf(file, "\"%" PRId64 "\"%s];\n", data.number, NUMB_GRAPH_STYLE); 
+            break; 
+        } 
 
-        default:         { assert(! "VALID TYPE"); break; } 
+        default:         
+        { 
+            assert(!"VALID TYPE"); 
+            break; 
+        } 
     }
 
     if (node->parent != nullptr)
@@ -274,7 +285,7 @@ void dumpToFile(FILE* file, Node* node)
 
     if (node->type == NUMB_TYPE)
     {
-        fprintf(file, "%lg ", node->data.number);
+        fprintf(file, "%" PRId64 " ", node->data.number);
     }
     else if (node->type == NAME_TYPE)
     {
@@ -384,7 +395,7 @@ Node* readTreeFromFile(const char* filename)
 
         if (node->type == NUMB_TYPE)
         {
-            sscanf(buffer + ofs, "%lg %n", &(node->data.number), &len);
+            sscanf(buffer + ofs, "%" PRId64 " %n", &(node->data.number), &len);
         }
         else if (node->type == NAME_TYPE)
         {

@@ -3,7 +3,7 @@
 
 union TokenData
 {
-    double      number;
+    int64_t     number;
     char*       id;
     KeywordCode keywordCode;
 };
@@ -43,7 +43,7 @@ bool isNumberType   (Token* token);
 bool isIdType       (Token* token);
 bool isKeywordType  (Token* token);
 
-bool isNumber       (Token* token, double number);
+bool isNumber       (Token* token, int64_t number);
 bool isId           (Token* token, const char* id);
 bool isKeyword      (Token* token, KeywordCode keywordCode);
 

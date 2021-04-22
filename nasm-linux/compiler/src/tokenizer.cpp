@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
+
 #include "tokenizer.h"
 #include "../libs/utilib.h"
 
@@ -11,15 +13,15 @@
 
 const size_t MAX_TOKENS_COUNT = 8192;
 
-bool   finished        (Tokenizer* tokenizer);
-void   skipSpaces      (Tokenizer* tokenizer);
-void   proceed         (Tokenizer* tokenizer, size_t step);
-void   addToken        (Tokenizer* tokenizer, Token token);
-bool   processKeyword  (Tokenizer* tokenizer);
-bool   isKeywordNumber (Keyword keyword);
-double keywordToNumber (Keyword keyword);
-bool   processNumeric  (Tokenizer* tokenizer);
-bool   processId       (Tokenizer* tokenizer);
+bool    finished        (Tokenizer* tokenizer);
+void    skipSpaces      (Tokenizer* tokenizer);
+void    proceed         (Tokenizer* tokenizer, size_t step);
+void    addToken        (Tokenizer* tokenizer, Token token);
+bool    processKeyword  (Tokenizer* tokenizer);
+bool    isKeywordNumber (Keyword keyword);
+int64_t keywordToNumber (Keyword keyword);
+bool    processNumeric  (Tokenizer* tokenizer);
+bool    processId       (Tokenizer* tokenizer);
 
 void construct(Tokenizer* tokenizer, const char* buffer, size_t bufferSize, bool useNumericNumbers)
 {
@@ -74,11 +76,11 @@ bool isKeywordType(Token* token)
     return token->type == KEYWORD_TOKEN_TYPE;
 }
 
-bool isNumber(Token* token, double number)
+bool isNumber(Token* token, int64_t number)
 {
     assert(token != nullptr);
 
-    return isNumberType(token) && dcompare(token->data.number, number) == 0;
+    return isNumberType(token) && token->data.number == number;
 }
 
 bool isId(Token* token, const char* id)
@@ -228,16 +230,15 @@ bool isKeywordNumber(Keyword keyword)
     return keyword.code >= ZERO_KEYWORD && keyword.code <= SIX_KEYWORD;  
 }
 
-double keywordToNumber(Keyword keyword)
+int64_t keywordToNumber(Keyword keyword)
 {
     switch (keyword.code)
     {
-        case ZERO_KEYWORD:  return 0;
-        case TWO_KEYWORD:   return 2;
-        case THREE_KEYWORD: return 3;
-        case SIX_KEYWORD:   return 6;
-
-        default:            return -1;
+        case ZERO_KEYWORD:  { return 0;               }
+        case TWO_KEYWORD:   { return 2;               }
+        case THREE_KEYWORD: { return 3;               }
+        case SIX_KEYWORD:   { return 6;               }
+        default:            { return INVALID_KEYWORD; }
     }
 }
 
@@ -247,8 +248,8 @@ bool processNumeric(Tokenizer* tokenizer)
 
     if (!(tokenizer->useNumericNumbers)) { return false; }
 
-    char*  numberEnd = nullptr;
-    double value     = strtod(tokenizer->position, &numberEnd);
+    char*   numberEnd = nullptr;
+    int64_t value     = strtoll(tokenizer->position, &numberEnd, 10);
 
     if (numberEnd == tokenizer->position) { return false; }
 
@@ -290,7 +291,7 @@ void dumpTokens(Token* tokens, size_t count)
         {
             case NUMBER_TOKEN_TYPE: 
             { 
-                printf("(number) %lg\n", tokens[i].data.number);
+                printf("(number) %" PRId64 "\n", tokens[i].data.number);
                 break; 
             }
 
@@ -302,7 +303,18 @@ void dumpTokens(Token* tokens, size_t count)
 
             case KEYWORD_TOKEN_TYPE: 
             { 
-                printf("(keywordCode) %d '%s'\n", tokens[i].data.keywordCode, KEYWORDS[tokens[i].data.keywordCode].name); 
+                if (tokens[i].data.keywordCode == NEW_LINE_KEYWORD)
+                {
+                    printf("(keywordCode) %d '\\n'\n", 
+                           tokens[i].data.keywordCode); 
+                }
+                else 
+                {
+                    printf("(keywordCode) %d '%s'\n", 
+                           tokens[i].data.keywordCode, 
+                           KEYWORDS[tokens[i].data.keywordCode].name); 
+                }
+
                 break; 
             }
         }
