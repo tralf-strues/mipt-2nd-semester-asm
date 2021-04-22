@@ -293,19 +293,19 @@ void dumpToFile(FILE* file, Node* node)
         {
             fprintf(file, "%s ", UNIVERSAL_MAIN_NAME);
         }
-        else if (strcmp(node->data.id, KEYWORDS[PRINT_KEYWORD].name) == 0)
+        else if (strcmp(node->data.id, KEYWORDS[PRINT_KEYWORD].string) == 0)
         {
             fprintf(file, "%s ", UNIVERSAL_PRINT_NAME);   
         }
-        else if (strcmp(node->data.id, KEYWORDS[SCAN_KEYWORD].name) == 0)
+        else if (strcmp(node->data.id, KEYWORDS[SCAN_KEYWORD].string) == 0)
         {
             fprintf(file, "%s ", UNIVERSAL_SCAN_NAME);   
         }
-        else if (strcmp(node->data.id, KEYWORDS[FLOOR_KEYWORD].name) == 0)
+        else if (strcmp(node->data.id, KEYWORDS[FLOOR_KEYWORD].string) == 0)
         {
             fprintf(file, "%s ", UNIVERSAL_FLOOR_NAME);   
         }
-        else if (strcmp(node->data.id, KEYWORDS[SQRT_KEYWORD].name) == 0)
+        else if (strcmp(node->data.id, KEYWORDS[SQRT_KEYWORD].string) == 0)
         {
             fprintf(file, "%s ", UNIVERSAL_SQRT_NAME);   
         }
@@ -407,19 +407,19 @@ Node* readTreeFromFile(const char* filename)
             }
             else if (strncmp(buffer + ofs, UNIVERSAL_PRINT_NAME, len) == 0)
             {
-                node->data.id = KEYWORDS[PRINT_KEYWORD].name;
+                node->data.id = KEYWORDS[PRINT_KEYWORD].string;
             }
             else if (strncmp(buffer + ofs, UNIVERSAL_SCAN_NAME, len) == 0)
             {
-                node->data.id = KEYWORDS[SCAN_KEYWORD].name;
+                node->data.id = KEYWORDS[SCAN_KEYWORD].string;
             }
             else if (strncmp(buffer + ofs, UNIVERSAL_FLOOR_NAME, len) == 0)
             {
-                node->data.id = KEYWORDS[FLOOR_KEYWORD].name;
+                node->data.id = KEYWORDS[FLOOR_KEYWORD].string;
             }
             else if (strncmp(buffer + ofs, UNIVERSAL_SQRT_NAME, len) == 0)
             {
-                node->data.id = KEYWORDS[SQRT_KEYWORD].name;
+                node->data.id = KEYWORDS[SQRT_KEYWORD].string;
             }
             else
             {

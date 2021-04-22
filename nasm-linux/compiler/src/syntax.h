@@ -75,65 +75,69 @@ enum KeywordCode
 
 struct Keyword
 {
-    const char* name;
+    const char* string;
     size_t      length;
     KeywordCode code;
+    const char* codeString;
 };
 
 static const char* MAIN_FUNCTION_NAME = "love";
 
+#define TO_STR(keywordCode) #keywordCode
+
 static const Keyword KEYWORDS[KEYWORDS_COUNT] = {
-    { "Godric's-Hollow", 15, PROG_START_KEYWORD    },
-    { "Privet-Drive",    12, PROG_END_KEYWORD      },
-    { "\n",              1,  NEW_LINE_KEYWORD      },
+    { "Godric's-Hollow", 15, PROG_START_KEYWORD,    TO_STR(PROG_START_KEYWORD)    },
+    { "Privet-Drive",    12, PROG_END_KEYWORD,      TO_STR(PROG_END_KEYWORD)      },
+    { "\n",              1,  NEW_LINE_KEYWORD,      TO_STR(NEW_LINE_KEYWORD)      },
 
-    { "(oNo)",           5,  COMMENT_KEYWORD       },
+    { "(oNo)",           5,  COMMENT_KEYWORD,       TO_STR(COMMENT_KEYWORD)       },
 
-    { "avenseguim",      10, VDECL_KEYWORD         },
-    { "imperio",         7,  FDECL_KEYWORD         },
+    { "avenseguim",      10, VDECL_KEYWORD,         TO_STR(VDECL_KEYWORD)         },
+    { "imperio",         7,  FDECL_KEYWORD,         TO_STR(FDECL_KEYWORD)         },
 
-    { "horcrux",         7,  ZERO_KEYWORD          },
-    { "duo",             3,  TWO_KEYWORD           },
-    { "tria",            4,  THREE_KEYWORD         },
-    { "maxima",          6,  SIX_KEYWORD           },
+    { "horcrux",         7,  ZERO_KEYWORD,          TO_STR(ZERO_KEYWORD)          },
+    { "duo",             3,  TWO_KEYWORD,           TO_STR(TWO_KEYWORD)           },
+    { "tria",            4,  THREE_KEYWORD,         TO_STR(THREE_KEYWORD)         },
+    { "maxima",          6,  SIX_KEYWORD,           TO_STR(SIX_KEYWORD)           },
 
-    { "depulso",         7,  CALL_KEYWORD          },
-    { "reverte",         7,  RETURN_KEYWORD        },
+    { "depulso",         7,  CALL_KEYWORD,          TO_STR(CALL_KEYWORD)          },
+    { "reverte",         7,  RETURN_KEYWORD,        TO_STR(RETURN_KEYWORD)        },
 
-    { "alohomora",       9,  OPEN_BRACE_KEYWORD    },
-    { "colloportus",     11, CLOSE_BRACE_KEYWORD   },
+    { "alohomora",       9,  OPEN_BRACE_KEYWORD,    TO_STR(OPEN_BRACE_KEYWORD)    },
+    { "colloportus",     11, CLOSE_BRACE_KEYWORD,   TO_STR(CLOSE_BRACE_KEYWORD)   },
 
-    { "protego",         7,  BRACKET_KEYWORD       },
-    { ",",               1,  COMMA_KEYWORD         },
+    { "protego",         7,  BRACKET_KEYWORD,       TO_STR(BRACKET_KEYWORD)       },
+    { ",",               1,  COMMA_KEYWORD,         TO_STR(COMMA_KEYWORD)         },
 
-    { "-",               1,  CMD_LINE_KEYWORD      },
+    { "-",               1,  CMD_LINE_KEYWORD,      TO_STR(CMD_LINE_KEYWORD)      },
 
-    { "revelio",         7,  IF_KEYWORD            },
-    { "otherwise",       9,  ELSE_KEYWORD          },
-    { "while",           5,  LOOP_KEYWORD          },
+    { "revelio",         7,  IF_KEYWORD,            TO_STR(IF_KEYWORD)            },
+    { "otherwise",       9,  ELSE_KEYWORD,          TO_STR(ELSE_KEYWORD)          },
+    { "while",           5,  LOOP_KEYWORD,          TO_STR(LOOP_KEYWORD)          },
 
-    { "carpe-retractum", 15, ASSGN_KEYWORD         },
-    { "legilimens",      10, DEREF_KEYWORD         },
+    { "carpe-retractum", 15, ASSGN_KEYWORD,         TO_STR(ASSGN_KEYWORD)         },
+    { "legilimens",      10, DEREF_KEYWORD,         TO_STR(DEREF_KEYWORD)         },
 
-    { "accio",           5,  SCAN_KEYWORD          },
-    { "flagrate",        8,  PRINT_KEYWORD         },
-    { "colloshoo",       9,  FLOOR_KEYWORD         },
-    { "crucio",          6,  SQRT_KEYWORD          },
+    { "accio",           5,  SCAN_KEYWORD,          TO_STR(SCAN_KEYWORD)          },
+    { "flagrate",        8,  PRINT_KEYWORD,         TO_STR(PRINT_KEYWORD)         },
+    { "colloshoo",       9,  FLOOR_KEYWORD,         TO_STR(FLOOR_KEYWORD)         },
+    { "crucio",          6,  SQRT_KEYWORD,          TO_STR(SQRT_KEYWORD)          },
 
-    { "riddikulus",      10, RAND_JUMP_KEYWORD     },
+    { "riddikulus",      10, RAND_JUMP_KEYWORD,     TO_STR(RAND_JUMP_KEYWORD)     },
 
-    { "epoximise",       9,  PLUS_KEYWORD          },
-    { "flipendo",        8,  MINUS_KEYWORD         },
-    { "geminio",         7,  MUL_KEYWORD           },
-    { "sectumsempra",    12, DIV_KEYWORD           },
+    { "epoximise",       9,  PLUS_KEYWORD,          TO_STR(PLUS_KEYWORD)          },
+    { "flipendo",        8,  MINUS_KEYWORD,         TO_STR(MINUS_KEYWORD)         },
+    { "geminio",         7,  MUL_KEYWORD,           TO_STR(MUL_KEYWORD)           },
+    { "sectumsempra",    12, DIV_KEYWORD,           TO_STR(DIV_KEYWORD)           },
 
-    { "equal",           5,  EQUAL_KEYWORD         },
-    { "not-equal",       9,  NOT_EQUAL_KEYWORD     },
-    { "less-equal",      10, LESS_EQUAL_KEYWORD    },
-    { "greater-equal",   13, GREATER_EQUAL_KEYWORD }, 
-    { "less",            4,  LESS_KEYWORD          },
-    { "greater",         7,  GREATER_KEYWORD       }
+    { "equal",           5,  EQUAL_KEYWORD,         TO_STR(EQUAL_KEYWORD)         },
+    { "not-equal",       9,  NOT_EQUAL_KEYWORD,     TO_STR(NOT_EQUAL_KEYWORD)     },
+    { "less-equal",      10, LESS_EQUAL_KEYWORD,    TO_STR(LESS_EQUAL_KEYWORD)    },
+    { "greater-equal",   13, GREATER_EQUAL_KEYWORD, TO_STR(GREATER_EQUAL_KEYWORD) }, 
+    { "less",            4,  LESS_KEYWORD,          TO_STR(LESS_KEYWORD)          },
+    { "greater",         7,  GREATER_KEYWORD,       TO_STR(GREATER_KEYWORD)       }
 };
 
-const char* mathOpToString   (MathOp operation);
-const char* getKeywordString (KeywordCode keywordCode);
+const char* mathOpToString      (MathOp operation);
+const char* keywordCodeToString (KeywordCode keywordCode);
+const char* getKeywordString    (KeywordCode keywordCode);

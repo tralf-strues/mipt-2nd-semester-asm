@@ -102,31 +102,34 @@ Finally, the grammar is ready and I can begin incorporating aforementioned featu
 ================================================================================
          Symbols meanings (used for making the grammar look easier):           
 ================================================================================
-{      ::= 'alohomora'
-}      ::= 'colloportus'
-(      ::= 'protego'
-)      ::= 'protego'
+{       ::= 'alohomora'
+}       ::= 'colloportus'
+(       ::= 'protego'
+)       ::= 'protego'
 
-==     ::= 'equal'
-!=     ::= 'not-equal' 
-<=     ::= 'less-equal' 
->=     ::= 'greater-equal' 
-<      ::= 'less' 
->      ::= 'greater' 
+==      ::= 'equal'
+!=      ::= 'not-equal' 
+<=      ::= 'less-equal' 
+>=      ::= 'greater-equal' 
+<       ::= 'less' 
+>       ::= 'greater' 
 
-+      ::= 'epoximise'
--      ::= 'flipendo'
-*      ::= 'geminio'
-/      ::= 'sectumsempra'
++       ::= 'epoximise'
+-       ::= 'flipendo'
+*       ::= 'geminio'
+/       ::= 'sectumsempra'
 
-*Var   ::= 'legilimens' Var
-=      ::= 'carpe-retractum'
+*Var    ::= 'legilimens' Var
+=       ::= 'carpe-retractum'
 
-read   ::= 'accio'
-readf  ::= 'accio-bombarda'
-print  ::= 'flagrate'
-printf ::= 'flagrate-bombarda'
-return ::= 'reverte'
+print   ::= 'flagrate'
+printf  ::= 'flagrate-bombarda'
+read    ::= 'accio'
+readf   ::= 'accio-bombarda'
+sqrt    ::= 'crucio'
+randjmp ::= 'riddikulus'
+
+return  ::= 'reverte'
 ```
 ```
 ================================================================================
@@ -146,7 +149,7 @@ Jump         ::= return Expression
 Expression   ::= Comparand {[<, >, ==, !=, <=, >=] Comparand}*
 Comparand    ::= Term {[+, -] Term}*
 Term         ::= Factor {[*, /] Factor}*
-Factor       ::= ( Expression ) | Num | *Var | Call | Read
+Factor       ::= ( Expression ) | Num | *Var | Call | Read | Sqrt | randjmp
 
 Condition    ::= 'revelio' ( Expression ) Block 'otherwise' Block | 'revelio' ( Expression ) Block
 Loop         ::= 'while' ( Expression ) Block
@@ -160,6 +163,7 @@ LValue       ::= Var | MemAccess
 Call         ::= depulso Var ( ) | depulso Var (ExprList)
 Print        ::= print 'circumrota' | print StringQuoted | print StringName | print Expression | printf Expression ',' Expression
 Read         ::= read | readf ( Expression )
+Sqrt         ::= sqrt ( Expression )
 
 ExprList     ::= Expression {, Expression}*
 ParamList    ::= horcrux | Var {, Var}*

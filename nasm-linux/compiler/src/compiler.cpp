@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <string.h>
+#include <inttypes.h>
+
 #include "compiler.h"
 
 #define ASSERT_COMPILER(compiler) assert(compiler        != nullptr); \
@@ -360,7 +362,7 @@ void writeNumber(Compiler* compiler, Node* node)
     ASSERT_COMPILER(compiler);
     assert(node != nullptr);
 
-    fprintf(OUTPUT, "push %lg\n", node->data.number);
+    fprintf(OUTPUT, "push %" PRId64 "\n", node->data.number);
 }
 
 void writeVar(Compiler* compiler, Node* node)
@@ -413,26 +415,26 @@ bool writeStdCall(Compiler* compiler, Node* node)
     assert(node != nullptr);
 
     const char* name = node->left->data.id;
-    if (strcmp(name, KEYWORDS[PRINT_KEYWORD].name) == 0)
+    if (strcmp(name, KEYWORDS[PRINT_KEYWORD].string) == 0)
     {
         writeExpression(compiler, node->right->left);
         fprintf(OUTPUT, "out\n");
     } 
-    else if (strcmp(name, KEYWORDS[SCAN_KEYWORD].name) == 0)
+    else if (strcmp(name, KEYWORDS[SCAN_KEYWORD].string) == 0)
     {
         fprintf(OUTPUT, "in\n");
     } 
-    else if (strcmp(name, KEYWORDS[FLOOR_KEYWORD].name) == 0)
+    else if (strcmp(name, KEYWORDS[FLOOR_KEYWORD].string) == 0)
     {
         writeExpression(compiler, node->right->left);
         fprintf(OUTPUT, "flr\n");
     }
-    else if (strcmp(name, KEYWORDS[SQRT_KEYWORD].name) == 0)
+    else if (strcmp(name, KEYWORDS[SQRT_KEYWORD].string) == 0)
     {
         writeExpression(compiler, node->right->left);
         fprintf(OUTPUT, "sqrt\n");
     }  
-    else if (strcmp(name, KEYWORDS[RAND_JUMP_KEYWORD].name) == 0)
+    else if (strcmp(name, KEYWORDS[RAND_JUMP_KEYWORD].string) == 0)
     {
         fprintf(OUTPUT, "rndjmp\n");
     }

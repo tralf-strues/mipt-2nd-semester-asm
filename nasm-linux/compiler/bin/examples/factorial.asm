@@ -12,8 +12,8 @@ pop [rax+2]
 
 ; IF statement
 push [rax+2]
-push 1.01856e-312
-push 1.01856e-312
+push 3
+push 2
 sub
 
 ja :COMPARISON_0
@@ -28,10 +28,10 @@ je :IF_END_0
 
 push [rax+2]
 push [rax+2]
-push 0
+push 3
 sub
 
-push 3.91802e-67
+push 2
 add
 
 ; calling fact
@@ -55,8 +55,8 @@ ret
 
 jmp :IF_ELSE_END_0
 IF_END_0:
-push 6.95274e-310
-push 6.95274e-310
+push 3
+push 2
 sub
 
 push rax
@@ -77,7 +77,7 @@ ret
 ; ==================================================
 love:
 
-push 6.95274e-310
+push 0
 pop [rax+2]
 
 in
@@ -100,7 +100,7 @@ pop [rax+3]
 
 push [rax+3]
 out
-push 1.97626e-323
+push 0
 push rax
 push [rax]
 sub

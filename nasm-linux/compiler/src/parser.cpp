@@ -507,14 +507,14 @@ Node* parseFactor(Parser* parser)
 
             case SCAN_KEYWORD:
             {
-                factor = newNode(CALL_TYPE, {}, NAME(KEYWORDS[SCAN_KEYWORD].name), nullptr);
+                factor = newNode(CALL_TYPE, {}, NAME(KEYWORDS[SCAN_KEYWORD].string), nullptr);
                 proceed(parser);
                 break;
             }
 
             case RAND_JUMP_KEYWORD:
             {
-                factor = newNode(CALL_TYPE, {}, NAME(KEYWORDS[RAND_JUMP_KEYWORD].name), nullptr);
+                factor = newNode(CALL_TYPE, {}, NAME(KEYWORDS[RAND_JUMP_KEYWORD].string), nullptr);
                 proceed(parser);
                 break;
             }
@@ -609,7 +609,7 @@ Node* parsePrint(Parser* parser)
 
     Node* exprList = newNode(LIST_TYPE, {}, expression, nullptr);
 
-    return newNode(CALL_TYPE, {}, NAME(KEYWORDS[PRINT_KEYWORD].name), exprList);
+    return newNode(CALL_TYPE, {}, NAME(KEYWORDS[PRINT_KEYWORD].string), exprList);
 }
 
 Node* parseStandardFunc(Parser* parser, KeywordCode keywordCode)
@@ -628,7 +628,7 @@ Node* parseStandardFunc(Parser* parser, KeywordCode keywordCode)
 
     Node* exprList = newNode(LIST_TYPE, {}, expression, nullptr);
 
-    return newNode(CALL_TYPE, {}, NAME(KEYWORDS[keywordCode].name), exprList);
+    return newNode(CALL_TYPE, {}, NAME(KEYWORDS[keywordCode].string), exprList);
 }
 
 Node* parseFloor(Parser* parser)
@@ -647,7 +647,7 @@ Node* parseFloor(Parser* parser)
 
     Node* exprList = newNode(LIST_TYPE, {}, expression, nullptr);
 
-    return newNode(CALL_TYPE, {}, NAME(KEYWORDS[FLOOR_KEYWORD].name), exprList);
+    return newNode(CALL_TYPE, {}, NAME(KEYWORDS[FLOOR_KEYWORD].string), exprList);
 }
 
 Node* parseSqrt(Parser* parser)
@@ -666,7 +666,7 @@ Node* parseSqrt(Parser* parser)
 
     Node* exprList = newNode(LIST_TYPE, {}, expression, nullptr);
 
-    return newNode(CALL_TYPE, {}, NAME(KEYWORDS[SQRT_KEYWORD].name), exprList);
+    return newNode(CALL_TYPE, {}, NAME(KEYWORDS[SQRT_KEYWORD].string), exprList);
 }
 
 Node* parseExprList(Parser* parser)
@@ -789,7 +789,7 @@ Node* parseNumber(Parser* parser)
 
     if (!isNumberType(curToken(parser))) { return nullptr; }
 
-    double number = curToken(parser)->data.number;
+    int64_t number = curToken(parser)->data.number;
     proceed(parser);
 
     return newNode(NUMB_TYPE, { .number = number }, nullptr, nullptr);

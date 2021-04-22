@@ -181,7 +181,7 @@ bool processKeyword(Tokenizer* tokenizer)
             continue;
         }
 
-        if (strncmp(tokenizer->position, keyword.name, keyword.length) == 0)
+        if (strncmp(tokenizer->position, keyword.string, keyword.length) == 0)
         {
             if (isKeywordNumber(keyword))
             {
@@ -284,8 +284,11 @@ void dumpTokens(Token* tokens, size_t count)
     for (size_t i = 0; i < count; i++)
     {
         printf("Token %zu:\n"
-               "\ttype = %d\n"
-               "\tdata = ", i, tokens[i].type);
+               "\ttype = %s[%d]\n"
+               "\tdata = ", 
+               i,
+               tokenTypeToString(tokens[i].type),
+               tokens[i].type);
 
         switch (tokens[i].type)
         {
@@ -305,14 +308,16 @@ void dumpTokens(Token* tokens, size_t count)
             { 
                 if (tokens[i].data.keywordCode == NEW_LINE_KEYWORD)
                 {
-                    printf("(keywordCode) %d '\\n'\n", 
+                    printf("(keywordCode) %s[%d] '\\n'\n", 
+                           keywordCodeToString(tokens[i].data.keywordCode),
                            tokens[i].data.keywordCode); 
                 }
                 else 
                 {
-                    printf("(keywordCode) %d '%s'\n", 
+                    printf("(keywordCode) %s[%d] '%s'\n", 
+                           keywordCodeToString(tokens[i].data.keywordCode),
                            tokens[i].data.keywordCode, 
-                           KEYWORDS[tokens[i].data.keywordCode].name); 
+                           KEYWORDS[tokens[i].data.keywordCode].string); 
                 }
 
                 break; 
@@ -331,4 +336,16 @@ void dumpTokens(Token* tokens, size_t count)
             printf("\tpos  = '%.*s'\n\n", (int) length, tokens[i].pos);
         }
     }
+}
+
+const char* tokenTypeToString(TokenType type)
+{
+    switch (type)
+    {
+        case NUMBER_TOKEN_TYPE:  { return TO_STR(NUMBER_TOKEN_TYPE);  }
+        case ID_TOKEN_TYPE:      { return TO_STR(ID_TOKEN_TYPE);      }
+        case KEYWORD_TOKEN_TYPE: { return TO_STR(KEYWORD_TOKEN_TYPE); }
+    }
+
+    return nullptr;
 }

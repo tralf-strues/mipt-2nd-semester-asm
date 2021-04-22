@@ -53,3 +53,5 @@ bool isFactor       (Token* token);
  
 void tokenizeBuffer (Tokenizer* tokenizer);
 void dumpTokens     (Token* tokens, size_t count);
+
+const char* tokenTypeToString(TokenType type);
